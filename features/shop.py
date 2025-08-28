@@ -1,80 +1,152 @@
-# features/shop.py
-"""
-Example Cog: Shop
-
-Demonstrates rich embeds, buttons (for direct links), select menus (for plan selection),
-and DM responses on interaction.
-
-- Embeds: Use discord.Embed() with title, fields, color, thumbnail, footer.
-- Buttons: discord.ui.Button() with label, url (for direct links) or custom_id for callbacks.
-- Select Menus: discord.ui.Select() with options, callback for handling selection.
-- Interactions: Handle with async callback, use interaction.response.send_message(ephemeral=True) for feedback.
-- DM: await interaction.user.send() for private messages.
-
-This cog is self-contained and auto-loaded.
-For production: Handle rate limits with try-except on interactions.
-For persistent data: Use JSON in data/ or a DB.
-"""
-
 import discord
 from discord.ext import commands
-from discord import app_commands
+
 
 class Shop(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
-    @commands.hybrid_command(name='shop', description='Displays the shop with plans and buy options')
+    @commands.hybrid_command(name="shop", description="🛍️ HyperShield Shop")
     async def shop(self, ctx: commands.Context):
         """
-        Shop command example.
-        Sends an embed with buttons and select menu.
-        On select, sends DM with details and ephemeral confirmation.
+        HyperShield Shop with fingleesh texts
         """
-        # Rich embed with dynamic content
+
+        # Embed professional
         embed = discord.Embed(
-            title='Bot Shop',
-            description='Choose a plan or buy directly!',
-            color=discord.Color.blue()
+            title="💎 HyperShield | Serverhaye PorSor'at Germany 🇩🇪",
+            description=(
+                "🚀 **Chara HyperShield?**\n"
+                "- Serverhaye anti-filter ba ping kam\n"
+                "- Poshtibani 24/7 az tarigh Telegram\n"
+                "- Test free 24 sa'ate\n"
+                "- Pardakht amn ba cart & crypto\n\n"
+                "<:telegram:123456789012345678> Channel Telegram: [Shop HyperShield](https://t.me/Shop_HyperSheild)"
+            ),
+            color=discord.Color(0x00FFFF),  # cyan,
         )
-        embed.add_field(name='Basic Plan', value='$10/month - Essential features', inline=False)
-        embed.add_field(name='Pro Plan', value='$20/month - Advanced tools', inline=False)
-        embed.set_thumbnail(url='https://example.com/thumbnail.png')  # Replace with real URL
-        embed.set_footer(text='Shop powered by xAI')
 
-        # View for buttons and selects
-        view = discord.ui.View(timeout=None)  # Persistent view (no timeout for production)
+        embed.set_thumbnail(
+            url="https://cdn.discordapp.com/attachments/912587142629326859/1410658003891388516/channel.jpg?ex=68b1d124&is=68b07fa4&hm=6a07732b569f9f3605737196740455f64bf35332631e553d985f9684ebcdbd0d&"
+        )
+        embed.set_footer(
+            text="🌐 HyperShield — Speed & Security",
+            icon_url="https://cdn.discordapp.com/attachments/912587142629326859/1410658003891388516/channel.jpg?ex=68b1d124&is=68b07fa4&hm=6a07732b569f9f3605737196740455f64bf35332631e553d985f9684ebcdbd0d&",
+        )
 
-        # Button for direct link (e.g., purchase page)
+        # Add fields (plans)
+        embed.add_field(
+            name="🔥 Tunnel (Ejtemayi & Arzun)",
+            value="20GB – 65 Toman | 30GB – 90 Toman\n40GB – 130 Toman | 50GB – 160 Toman\n60GB – 190 Toman",
+            inline=False,
+        )
+        embed.add_field(
+            name="⚡ Unlimited (Fair Usage)",
+            value="80GB – 210 Toman | 100GB – 260 Toman\n150GB – 390 Toman | 200GB – 520 Toman",
+            inline=False,
+        )
+        embed.add_field(
+            name="🌐 Premium",
+            value="10GB – 80 Toman | 20GB – 160 Toman\n30GB – 240 Toman | 40GB – 320 Toman\n50GB – 400 Toman",
+            inline=False,
+        )
+
+        # View for button & select
+        view = discord.ui.View(timeout=None)
+
+        # Button to Telegram
         buy_button = discord.ui.Button(
-            label='Buy Now',
-            style=discord.ButtonStyle.primary,
-            url='https://example.com/purchase'  # Direct link to external site
+            label="🛒 Kharid az telegram",
+            style=discord.ButtonStyle.link,
+            url="https://t.me/Shop_HyperSheild",
         )
         view.add_item(buy_button)
 
-        # Select menu for plan selection
+        Assistant_button = discord.ui.Button(
+            label="🧑‍💻 Support",
+            style=discord.ButtonStyle.link,
+            url="https://t.me/Assistant_HyperShield",
+        )
+        view.add_item(Assistant_button)
+
+        # Select menu for plans
         select = discord.ui.Select(
-            placeholder='Select a plan...',
+            placeholder="Yek plan entekhab konid...",
             options=[
-                discord.SelectOption(label='Basic', value='basic', description='$10/month'),
-                discord.SelectOption(label='Pro', value='pro', description='$20/month')
-            ]
+                discord.SelectOption(label="10GB – 40 Toman", value="10g"),
+                discord.SelectOption(label="20GB – 65 Toman", value="20g"),
+                discord.SelectOption(label="30GB – 90 Toman", value="30g"),
+                discord.SelectOption(label="40GB – 130 Toman", value="40g"),
+                discord.SelectOption(label="50GB – 160 Toman", value="50g"),
+                discord.SelectOption(label="60GB – 190 Toman", value="60g"),
+                discord.SelectOption(label="80GB – 210 Toman", value="80g"),
+                discord.SelectOption(label="100GB – 260 Toman", value="100g"),
+                discord.SelectOption(label="150GB – 390 Toman", value="150g"),
+                discord.SelectOption(label="200GB – 520 Toman", value="200g"),
+            ],
         )
 
-        # Callback for select menu (async handling)
+        # تعریف callback به عنوان closure تا به select دسترسی داشته باشه
         async def select_callback(interaction: discord.Interaction):
-            selected = interaction.data['values'][0]
-            # DM private details
-            await interaction.user.send(f'You selected the {selected.capitalize()} plan! Details: ...')
-            # Ephemeral feedback
-            await interaction.response.send_message('Plan details sent to your DM!', ephemeral=True)
+            selected = interaction.data["values"][0]
+            plan_text = next(
+                opt.label for opt in select.options if opt.value == selected
+            )
+
+            guild = interaction.guild
+            author = interaction.user
+
+            # پیدا کردن یا ایجاد دسته تیکت‌ها
+            category_name = "HyperShield"
+            category = discord.utils.get(guild.categories, name=category_name)
+            if category is None:
+                category = await guild.create_category(category_name)
+
+            # Permission Overwrites
+            overwrites = {
+                guild.default_role: discord.PermissionOverwrite(view_channel=False),
+                author: discord.PermissionOverwrite(
+                    view_channel=True, send_messages=True
+                ),
+            }
+
+            # ایجاد کانال تیکت
+            ticket_channel = await guild.create_text_channel(
+                name=f"ticket-{author.name}",
+                category=category,
+                overwrites=overwrites,
+                reason=f"Ticket for {author}",
+            )
+
+            # پیام داخل تیکت
+            await ticket_channel.send(
+                f"Salam {author.mention}! ✅\n"
+                f"Shoma plan **{plan_text}** ro entekhab kardi.\n\n"
+                f"Lotfan be in shomare kart vaariz konid:\n"
+                "💳 1234-5678-9012-3456\n"
+                f"Va tasvir varizi ro inja ersal konid.\n\n"
+                f"Payamaye shoma be Admin ha etela' dade mishavad."
+            )
+
+            # اطلاع‌رسانی به Admin
+            admin_channel = discord.utils.get(guild.text_channels, name="admin-notify")
+            if admin_channel:
+                await admin_channel.send(
+                    f"📌 User {author.mention} plan **{plan_text}** ro entekhab kard. "
+                    f"Tasvir varizy ro check kon."
+                )
+
+            # پاسخ ephemeral
+            await interaction.response.send_message(
+                f"🎫 Ticket shoma baraye plan **{plan_text}** sakhte shod ✅",
+                ephemeral=True,
+            )
 
         select.callback = select_callback
         view.add_item(select)
 
-        # Send the message with embed and view
         await ctx.send(embed=embed, view=view)
+
 
 async def setup(bot):
     await bot.add_cog(Shop(bot))

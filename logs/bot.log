@@ -1,0 +1,212 @@
+2025-08-28 19:19:20,869 - WARNING - PyNaCl is not installed, voice will NOT be supported
+2025-08-28 19:19:20,874 - INFO - logging in using static token
+2025-08-28 19:21:35,716 - WARNING - PyNaCl is not installed, voice will NOT be supported
+2025-08-28 19:21:35,722 - INFO - logging in using static token
+2025-08-28 19:25:46,496 - WARNING - PyNaCl is not installed, voice will NOT be supported
+2025-08-28 19:25:46,501 - INFO - logging in using static token
+2025-08-28 19:25:59,443 - INFO - Loaded cog: features.hello
+2025-08-28 19:25:59,462 - INFO - Loaded cog: features.newfeature
+2025-08-28 19:25:59,476 - INFO - Loaded cog: features.shop
+2025-08-28 19:25:59,991 - INFO - Slash commands synced.
+2025-08-28 19:26:00,983 - INFO - Shard ID None has connected to Gateway (Session ID: 86538048dbba8b82b55dbdd690c55d6a).
+2025-08-28 19:26:02,997 - INFO - Bot ready and connected to 0 guilds.
+2025-08-28 19:30:53,432 - INFO - Command used: shop by powermatin in powermatin
+2025-08-28 19:31:05,447 - ERROR - Ignoring exception in view <View timeout=None children=2> for item <Select placeholder='Select a plan...' min_values=1 max_values=1 disabled=False options=[<SelectOption label='Basic' value='basic' description='$10/month' emoji=None default=False>, <SelectOption label='Pro' value='pro' description='$20/month' emoji=None default=False>]>
+Traceback (most recent call last):
+  File "c:\Users\powermatin\AppData\Local\Programs\Python\Python311\Lib\site-packages\discord\ui\view.py", line 427, in _scheduled_task
+    await item.callback(interaction)
+  File "C:\Users\powermatin\Documents\GitHub\Harmony-DiscordBot\features\shop.py", line 71, in select_callback
+    await interaction.response.send_message('Plan details sent to your DM!', ephemeral=True)
+  File "c:\Users\powermatin\AppData\Local\Programs\Python\Python311\Lib\site-packages\discord\interactions.py", line 801, in send_message
+    await adapter.create_interaction_response(
+  File "c:\Users\powermatin\AppData\Local\Programs\Python\Python311\Lib\site-packages\discord\webhook\async_.py", line 219, in request
+    raise NotFound(response, data)
+discord.errors.NotFound: 404 Not Found (error code: 10062): Unknown interaction
+2025-08-28 19:33:22,663 - INFO - Command used: shop by powermatin in powermatin
+2025-08-28 19:37:27,821 - WARNING - PyNaCl is not installed, voice will NOT be supported
+2025-08-28 19:37:27,825 - INFO - logging in using static token
+2025-08-28 19:37:28,696 - INFO - Loaded cog: features.hello
+2025-08-28 19:37:28,699 - INFO - Loaded cog: features.newfeature
+2025-08-28 19:37:28,711 - INFO - Loaded cog: features.shop
+2025-08-28 19:37:29,114 - INFO - Slash commands synced.
+2025-08-28 19:37:29,876 - INFO - Shard ID None has connected to Gateway (Session ID: 95aaf4e9a86d7ff1c18d95c8c026c193).
+2025-08-28 19:37:31,920 - INFO - Bot ready and connected to 1 guilds.
+2025-08-28 19:37:37,306 - INFO - Command used: shop by powermatin in powermatin
+2025-08-28 19:40:47,382 - WARNING - PyNaCl is not installed, voice will NOT be supported
+2025-08-28 19:40:47,386 - INFO - logging in using static token
+2025-08-28 19:40:48,332 - INFO - Loaded cog: features.hello
+2025-08-28 19:40:48,336 - INFO - Loaded cog: features.newfeature
+2025-08-28 19:40:48,353 - INFO - Loaded cog: features.shop
+2025-08-28 19:40:48,725 - INFO - Slash commands synced.
+2025-08-28 19:40:49,453 - INFO - Shard ID None has connected to Gateway (Session ID: 2391b47239f00e90f8efcd143bdc9213).
+2025-08-28 19:40:51,486 - INFO - Bot ready and connected to 1 guilds.
+2025-08-28 19:40:53,610 - INFO - Command used: shop by powermatin in powermatin
+2025-08-28 19:41:37,719 - WARNING - PyNaCl is not installed, voice will NOT be supported
+2025-08-28 19:41:37,723 - INFO - logging in using static token
+2025-08-28 19:41:38,643 - INFO - Loaded cog: features.hello
+2025-08-28 19:41:38,646 - INFO - Loaded cog: features.newfeature
+2025-08-28 19:41:38,661 - INFO - Loaded cog: features.shop
+2025-08-28 19:41:39,101 - INFO - Slash commands synced.
+2025-08-28 19:41:39,895 - INFO - Shard ID None has connected to Gateway (Session ID: 6e7f38334c01b0ee66dad9568b2ca18b).
+2025-08-28 19:41:41,927 - INFO - Bot ready and connected to 1 guilds.
+2025-08-28 19:41:42,445 - INFO - Command used: shop by powermatin in powermatin
+2025-08-28 19:42:22,286 - WARNING - PyNaCl is not installed, voice will NOT be supported
+2025-08-28 19:42:22,291 - INFO - logging in using static token
+2025-08-28 19:42:23,228 - INFO - Loaded cog: features.hello
+2025-08-28 19:42:23,231 - INFO - Loaded cog: features.newfeature
+2025-08-28 19:42:23,236 - INFO - Loaded cog: features.shop
+2025-08-28 19:42:23,597 - INFO - Slash commands synced.
+2025-08-28 19:42:24,341 - INFO - Shard ID None has connected to Gateway (Session ID: 45f08d5a24c083b56f1aa79815b42ee2).
+2025-08-28 19:42:26,383 - INFO - Bot ready and connected to 1 guilds.
+2025-08-28 19:42:27,574 - INFO - Command used: shop by powermatin in powermatin
+2025-08-28 19:43:42,798 - WARNING - PyNaCl is not installed, voice will NOT be supported
+2025-08-28 19:43:42,804 - INFO - logging in using static token
+2025-08-28 19:43:43,771 - INFO - Loaded cog: features.hello
+2025-08-28 19:43:43,774 - INFO - Loaded cog: features.newfeature
+2025-08-28 19:43:43,790 - INFO - Loaded cog: features.shop
+2025-08-28 19:43:44,239 - INFO - Slash commands synced.
+2025-08-28 19:43:45,005 - INFO - Shard ID None has connected to Gateway (Session ID: a4ac4b2c81c2aa58faab406a0017900a).
+2025-08-28 19:43:45,204 - INFO - Command used: shop by powermatin in powermatin
+2025-08-28 19:43:47,047 - INFO - Bot ready and connected to 1 guilds.
+2025-08-28 19:44:11,297 - WARNING - PyNaCl is not installed, voice will NOT be supported
+2025-08-28 19:44:11,302 - INFO - logging in using static token
+2025-08-28 19:44:12,249 - INFO - Loaded cog: features.hello
+2025-08-28 19:44:12,252 - INFO - Loaded cog: features.newfeature
+2025-08-28 19:44:12,257 - INFO - Loaded cog: features.shop
+2025-08-28 19:44:35,142 - WARNING - PyNaCl is not installed, voice will NOT be supported
+2025-08-28 19:44:35,146 - INFO - logging in using static token
+2025-08-28 19:44:36,198 - INFO - Loaded cog: features.hello
+2025-08-28 19:44:36,202 - INFO - Loaded cog: features.newfeature
+2025-08-28 19:44:36,203 - INFO - Loaded cog: features.shop
+2025-08-28 19:45:14,181 - INFO - Slash commands synced.
+2025-08-28 19:45:14,941 - INFO - Shard ID None has connected to Gateway (Session ID: 1b8f1462f0efc01b770aac8636f07476).
+2025-08-28 19:45:16,989 - INFO - Bot ready and connected to 1 guilds.
+2025-08-28 19:45:29,239 - INFO - Command used: shop by powermatin in powermatin
+2025-08-28 19:54:15,410 - WARNING - PyNaCl is not installed, voice will NOT be supported
+2025-08-28 19:54:15,415 - INFO - logging in using static token
+2025-08-28 19:54:16,344 - INFO - Loaded cog: features.hello
+2025-08-28 19:54:16,347 - INFO - Loaded cog: features.newfeature
+2025-08-28 19:54:16,362 - INFO - Loaded cog: features.shop
+2025-08-28 19:54:16,762 - INFO - Slash commands synced.
+2025-08-28 19:54:17,731 - INFO - Shard ID None has connected to Gateway (Session ID: 7ad419733f302287919810e59df83c87).
+2025-08-28 19:54:19,743 - INFO - Bot ready and connected to 1 guilds.
+2025-08-28 19:54:47,383 - INFO - Command used: shop by powermatin in powermatin
+2025-08-28 19:56:02,950 - WARNING - PyNaCl is not installed, voice will NOT be supported
+2025-08-28 19:56:02,954 - INFO - logging in using static token
+2025-08-28 19:56:04,299 - INFO - Loaded cog: features.hello
+2025-08-28 19:56:04,302 - INFO - Loaded cog: features.newfeature
+2025-08-28 19:56:04,318 - INFO - Loaded cog: features.shop
+2025-08-28 19:56:04,782 - INFO - Slash commands synced.
+2025-08-28 19:56:05,594 - INFO - Shard ID None has connected to Gateway (Session ID: 0123db66f13297d7926afd375e483329).
+2025-08-28 19:56:07,668 - INFO - Bot ready and connected to 1 guilds.
+2025-08-28 19:56:17,669 - INFO - Command used: shop by powermatin in powermatin
+2025-08-28 19:57:49,187 - INFO - Command used: shop by bardia.bsh in powermatin
+2025-08-28 19:58:14,556 - ERROR - Ignoring exception in view <View timeout=None children=3> for item <Select placeholder='Yek plan entekhab konid...' min_values=1 max_values=1 disabled=False options=[<SelectOption label='20GB – 65k' value='20g' description=None emoji=None default=False>, <SelectOption label='30GB – 90k' value='30g' description=None emoji=None default=False>, <SelectOption label='40GB – 130k' value='40g' description=None emoji=None default=False>, <SelectOption label='50GB – 160k' value='50g' description=None emoji=None default=False>, <SelectOption label='60GB – 190k' value='60g' description=None emoji=None default=False>, <SelectOption label='80GB – 210k' value='80g' description=None emoji=None default=False>, <SelectOption label='100GB – 260k' value='100g' description=None emoji=None default=False>, <SelectOption label='150GB – 390k' value='150g' description=None emoji=None default=False>, <SelectOption label='200GB – 520k' value='200g' description=None emoji=None default=False>]>
+Traceback (most recent call last):
+  File "c:\Users\powermatin\AppData\Local\Programs\Python\Python311\Lib\site-packages\discord\ui\view.py", line 427, in _scheduled_task
+    await item.callback(interaction)
+  File "C:\Users\powermatin\Documents\GitHub\Harmony-DiscordBot\features\shop.py", line 99, in select_callback
+    await interaction.response.send_message(
+  File "c:\Users\powermatin\AppData\Local\Programs\Python\Python311\Lib\site-packages\discord\interactions.py", line 801, in send_message
+    await adapter.create_interaction_response(
+  File "c:\Users\powermatin\AppData\Local\Programs\Python\Python311\Lib\site-packages\discord\webhook\async_.py", line 219, in request
+    raise NotFound(response, data)
+discord.errors.NotFound: 404 Not Found (error code: 10062): Unknown interaction
+2025-08-28 19:59:30,780 - WARNING - PyNaCl is not installed, voice will NOT be supported
+2025-08-28 19:59:30,784 - INFO - logging in using static token
+2025-08-28 19:59:32,362 - INFO - Loaded cog: features.hello
+2025-08-28 19:59:32,366 - INFO - Loaded cog: features.newfeature
+2025-08-28 19:59:32,384 - INFO - Loaded cog: features.shop
+2025-08-28 19:59:33,021 - INFO - Slash commands synced.
+2025-08-28 19:59:34,014 - INFO - Shard ID None has connected to Gateway (Session ID: dcaa6bd0722597e7f0e9698a8d06ea2b).
+2025-08-28 19:59:36,066 - INFO - Bot ready and connected to 1 guilds.
+2025-08-28 19:59:43,288 - WARNING - PyNaCl is not installed, voice will NOT be supported
+2025-08-28 19:59:43,293 - INFO - logging in using static token
+2025-08-28 19:59:44,402 - INFO - Loaded cog: features.hello
+2025-08-28 19:59:44,405 - INFO - Loaded cog: features.newfeature
+2025-08-28 19:59:44,407 - INFO - Loaded cog: features.shop
+2025-08-28 20:00:33,055 - INFO - Slash commands synced.
+2025-08-28 20:00:34,049 - INFO - Shard ID None has connected to Gateway (Session ID: 695c801e366e7dc68a24f03c92b87bf5).
+2025-08-28 20:00:36,072 - INFO - Bot ready and connected to 1 guilds.
+2025-08-28 20:00:41,184 - INFO - Command used: shop by powermatin in powermatin
+2025-08-28 20:07:15,371 - WARNING - PyNaCl is not installed, voice will NOT be supported
+2025-08-28 20:07:15,376 - INFO - logging in using static token
+2025-08-28 20:07:16,627 - INFO - Loaded cog: features.hello
+2025-08-28 20:07:16,632 - INFO - Loaded cog: features.newfeature
+2025-08-28 20:07:16,646 - INFO - Loaded cog: features.shop
+2025-08-28 20:07:16,994 - INFO - Slash commands synced.
+2025-08-28 20:07:17,892 - INFO - Shard ID None has connected to Gateway (Session ID: 93367ed81b5c98a49bd3310ed97499ba).
+2025-08-28 20:07:19,927 - INFO - Bot ready and connected to 1 guilds.
+2025-08-28 20:07:27,627 - INFO - Command used: shop by powermatin in powermatin
+2025-08-28 20:09:56,769 - WARNING - PyNaCl is not installed, voice will NOT be supported
+2025-08-28 20:09:56,776 - INFO - logging in using static token
+2025-08-28 20:09:57,736 - INFO - Loaded cog: features.hello
+2025-08-28 20:09:57,740 - INFO - Loaded cog: features.newfeature
+2025-08-28 20:09:57,754 - INFO - Loaded cog: features.shop
+2025-08-28 20:09:58,177 - INFO - Slash commands synced.
+2025-08-28 20:09:58,870 - INFO - Shard ID None has connected to Gateway (Session ID: 0558a45f9bfb320b4bd1acfc946d8152).
+2025-08-28 20:10:00,897 - INFO - Bot ready and connected to 1 guilds.
+2025-08-28 20:10:11,703 - INFO - Command used: shop by powermatin in powermatin
+2025-08-28 20:10:20,161 - INFO - Command used: shop by powermatin in powermatin
+2025-08-28 20:10:47,886 - WARNING - PyNaCl is not installed, voice will NOT be supported
+2025-08-28 20:10:47,890 - INFO - logging in using static token
+2025-08-28 20:10:48,747 - INFO - Loaded cog: features.hello
+2025-08-28 20:10:48,751 - INFO - Loaded cog: features.newfeature
+2025-08-28 20:10:48,755 - INFO - Loaded cog: features.shop
+2025-08-28 20:10:49,218 - INFO - Slash commands synced.
+2025-08-28 20:11:01,205 - INFO - Shard ID None has connected to Gateway (Session ID: 7b804a69301180de808193315fdede0b).
+2025-08-28 20:11:03,255 - INFO - Bot ready and connected to 1 guilds.
+2025-08-28 20:11:05,336 - INFO - Command used: shop by powermatin in powermatin
+2025-08-28 20:12:17,874 - WARNING - PyNaCl is not installed, voice will NOT be supported
+2025-08-28 20:12:17,878 - INFO - logging in using static token
+2025-08-28 20:12:18,756 - INFO - Loaded cog: features.hello
+2025-08-28 20:12:18,758 - INFO - Loaded cog: features.newfeature
+2025-08-28 20:12:18,773 - INFO - Loaded cog: features.shop
+2025-08-28 20:12:19,132 - INFO - Slash commands synced.
+2025-08-28 20:12:19,875 - INFO - Shard ID None has connected to Gateway (Session ID: ed678de2770d27dc3172d405d41b0b65).
+2025-08-28 20:12:21,912 - INFO - Bot ready and connected to 1 guilds.
+2025-08-28 20:12:23,062 - INFO - Command used: shop by powermatin in powermatin
+2025-08-28 20:12:26,999 - INFO - Command used: shop by powermatin in powermatin
+2025-08-28 20:12:39,029 - WARNING - PyNaCl is not installed, voice will NOT be supported
+2025-08-28 20:12:39,033 - INFO - logging in using static token
+2025-08-28 20:12:40,244 - INFO - Loaded cog: features.hello
+2025-08-28 20:12:40,247 - INFO - Loaded cog: features.newfeature
+2025-08-28 20:12:40,263 - INFO - Loaded cog: features.shop
+2025-08-28 20:13:20,393 - INFO - Slash commands synced.
+2025-08-28 20:13:21,110 - INFO - Shard ID None has connected to Gateway (Session ID: 76cbba6566f09390c1abafbc1c477f47).
+2025-08-28 20:13:23,150 - INFO - Bot ready and connected to 1 guilds.
+2025-08-28 20:13:23,627 - INFO - Command used: shop by powermatin in powermatin
+2025-08-28 20:14:17,899 - WARNING - PyNaCl is not installed, voice will NOT be supported
+2025-08-28 20:14:17,903 - INFO - logging in using static token
+2025-08-28 20:14:18,900 - INFO - Loaded cog: features.hello
+2025-08-28 20:14:18,903 - INFO - Loaded cog: features.newfeature
+2025-08-28 20:14:18,918 - INFO - Loaded cog: features.shop
+2025-08-28 20:14:19,248 - INFO - Slash commands synced.
+2025-08-28 20:14:20,035 - INFO - Shard ID None has connected to Gateway (Session ID: cda7b0882ecdbed735a5243f42aa7d1a).
+2025-08-28 20:14:22,051 - INFO - Bot ready and connected to 1 guilds.
+2025-08-28 20:14:44,916 - WARNING - PyNaCl is not installed, voice will NOT be supported
+2025-08-28 20:14:44,921 - INFO - logging in using static token
+2025-08-28 20:14:45,837 - INFO - Loaded cog: features.hello
+2025-08-28 20:14:45,839 - INFO - Loaded cog: features.newfeature
+2025-08-28 20:14:45,844 - INFO - Loaded cog: features.shop
+2025-08-28 20:15:19,614 - INFO - Slash commands synced.
+2025-08-28 20:15:20,331 - INFO - Shard ID None has connected to Gateway (Session ID: a4344d9e618d435d8db9b532a2e82f08).
+2025-08-28 20:15:22,355 - INFO - Bot ready and connected to 1 guilds.
+2025-08-28 20:15:32,120 - INFO - Command used: shop by powermatin in powermatin
+2025-08-28 20:17:44,638 - WARNING - PyNaCl is not installed, voice will NOT be supported
+2025-08-28 20:17:44,642 - INFO - logging in using static token
+2025-08-28 20:17:45,712 - INFO - Loaded cog: features.hello
+2025-08-28 20:17:45,715 - INFO - Loaded cog: features.newfeature
+2025-08-28 20:17:45,731 - INFO - Loaded cog: features.shop
+2025-08-28 20:17:46,154 - INFO - Slash commands synced.
+2025-08-28 20:17:46,929 - INFO - Shard ID None has connected to Gateway (Session ID: 1b3f11babcfcb74edf43aad0a2e70acf).
+2025-08-28 20:17:48,965 - INFO - Bot ready and connected to 1 guilds.
+2025-08-28 20:18:01,394 - INFO - Command used: shop by powermatin in powermatin
+2025-08-28 20:21:16,199 - WARNING - PyNaCl is not installed, voice will NOT be supported
+2025-08-28 20:21:16,203 - INFO - logging in using static token
+2025-08-28 20:21:17,219 - INFO - Loaded cog: features.hello
+2025-08-28 20:21:17,223 - INFO - Loaded cog: features.newfeature
+2025-08-28 20:21:17,238 - ERROR - Failed to load cog features.shop: Extension 'features.shop' raised an error: SyntaxError: 'await' outside function (shop.py, line 145)
+2025-08-28 20:21:18,087 - INFO - Slash commands synced.
+2025-08-28 20:21:18,989 - INFO - Shard ID None has connected to Gateway (Session ID: d1f437e8c3e69d3938c3eecb668773ec).
+2025-08-28 20:21:21,021 - INFO - Bot ready and connected to 1 guilds.

@@ -9,8 +9,8 @@ Server-specific settings can be added here as a dict, e.g., for per-guild config
 Optional: Logging config can be expanded here.
 """
 
-PREFIX = '!'  # Command prefix for text-based commands
-LOG_LEVEL = 'INFO'  # Logging level: DEBUG, INFO, WARNING, ERROR, CRITICAL
+PREFIX = "$"  # Command prefix for text-based commands
+LOG_LEVEL = "INFO"  # Logging level: DEBUG, INFO, WARNING, ERROR, CRITICAL
 
 # Example: Server-specific settings (guild_id: {'key': 'value'})
 SERVER_SETTINGS = {
