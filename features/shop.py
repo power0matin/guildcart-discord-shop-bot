@@ -146,17 +146,17 @@ class Shop(commands.Cog):
                 ticket_embed = discord.Embed(
                     title="🎫 HyperShield | Ticket",
                     description=(
-                        f"👋 Salam {author.mention}!\n\n"
                         f"✅ Shoma plan **{plan_text}** ro entekhab kardi.\n\n"
                         "🔹 Lotfan mablagh ro be shomare kart zir vaariz konid:\n"
                         f"💳 **{CARD_NUMBER}**\n\n"
                         "📸 Tasvir-e vaarizi ro dar in ticket ersal konid.\n\n"
-                        "🛡️ Payamhaye shoma faghat tavasot **Admin-ha** dida mishavad."
+                        "🛡️ Payamhaye shoma faghat tavasot **Admin-ha** dide mishavad."
                     ),
                     color=discord.Color.green(),
                 )
 
-                await ticket_channel.send(embed=ticket_embed)
+                await ticket_channel.send(content=f"👋 Salam {author.mention}!", embed=ticket_embed)
+
 
                 # Notify admin channel
                 admin_channel = discord.utils.get(
