@@ -114,7 +114,14 @@ class ShopCog(commands.Cog):
     async def shop(self, ctx: commands.Context):
         embed = discord.Embed(
             title="💎 HyperShield | High Speed Servers",
-            description="🚀 Chara HyperShield?\n- Anti-filter servers ba ping kam\n- Poshtibani 24/7\n- Pardakht ba cart & crypto",
+            description=(
+                "🚀 **Chara HyperShield?**\n"
+                "- Serverhaye anti-filter ba ping kam\n"
+                "- Poshtibani 24/7 az tarigh Telegram\n"
+                "- Test free 24 sa'ate\n"
+                "- Pardakht amn ba cart & crypto\n\n"
+                "📱 Channel Telegram: [Shop HyperShield](https://t.me/Shop_HyperSheild)"
+            ),
             color=discord.Color.blue(),
         )
         embed.set_footer(text="🌐 HyperShield — Speed ⚡ Security")
