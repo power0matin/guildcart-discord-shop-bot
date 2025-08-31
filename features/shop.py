@@ -7,140 +7,174 @@ class Shop(commands.Cog):
         self.bot = bot
 
     @commands.hybrid_command(name="shop", description="🛍️ HyperShield Shop")
+    @commands.guild_only()
     async def shop(self, ctx: commands.Context):
         """
-        HyperShield Shop with fingleesh texts
+        HyperShield Shop — فروشگاه رسمی هایپرشیلد
         """
+        CATEGORY_NAME = "🎫 HyperShield Tickets"
+        ADMIN_CHANNEL_NAME = "admin-notify"
+        ADMIN_ROLE_NAME = "Admin"
+        CARD_NUMBER = "1234-5678-9012-3456"
 
-        # Embed professional
         embed = discord.Embed(
-            title="💎 HyperShield | Serverhaye PorSor'at Germany 🇩🇪",
+            title="💎 HyperShield | سرورهای پرسرعت آلمان 🇩🇪",
             description=(
                 "🚀 **Chara HyperShield?**\n"
                 "- Serverhaye anti-filter ba ping kam\n"
                 "- Poshtibani 24/7 az tarigh Telegram\n"
                 "- Test free 24 sa'ate\n"
                 "- Pardakht amn ba cart & crypto\n\n"
-                "<:telegram:123456789012345678> Channel Telegram: [Shop HyperShield](https://t.me/Shop_HyperSheild)"
+                "📱 Channel Telegram: [Shop HyperShield](https://t.me/Shop_HyperSheild)"
             ),
-            color=discord.Color(0x00FFFF),  # cyan,
+            color=discord.Color(0x00FFFF),
         )
 
         embed.set_thumbnail(
-            url="https://cdn.discordapp.com/attachments/912587142629326859/1410658003891388516/channel.jpg?ex=68b1d124&is=68b07fa4&hm=6a07732b569f9f3605737196740455f64bf35332631e553d985f9684ebcdbd0d&"
+            url="https://cdn.discordapp.com/attachments/912587142629326859/1410658003891388516/channel.jpg"
         )
         embed.set_footer(
-            text="🌐 HyperShield — Speed & Security",
-            icon_url="https://cdn.discordapp.com/attachments/912587142629326859/1410658003891388516/channel.jpg?ex=68b1d124&is=68b07fa4&hm=6a07732b569f9f3605737196740455f64bf35332631e553d985f9684ebcdbd0d&",
+            text="🌐 HyperShield — Speed ⚡ Security",
+            icon_url="https://cdn.discordapp.com/attachments/912587142629326859/1410658003891388516/channel.jpg",
         )
 
-        # Add fields (plans)
         embed.add_field(
-            name="🔥 Tunnel (Ejtemayi & Arzun)",
-            value="20GB – 65 Toman | 30GB – 90 Toman\n40GB – 130 Toman | 50GB – 160 Toman\n60GB – 190 Toman",
-            inline=False,
+            name="🔥 Tunnel",
+            value=(
+                "**10GB** – 40T\n"
+                "**20GB** – 65T\n"
+                "**30GB** – 90T\n"
+                "**40GB** – 130T\n"
+                "**50GB** – 160T\n"
+                "**60GB** – 190T"
+            ),
+            inline=True,
         )
         embed.add_field(
-            name="⚡ Unlimited (Fair Usage)",
-            value="80GB – 210 Toman | 100GB – 260 Toman\n150GB – 390 Toman | 200GB – 520 Toman",
-            inline=False,
+            name="⚡ Unlimited",
+            value=(
+                "**80GB** – 210T\n"
+                "**100GB** – 260T\n"
+                "**150GB** – 390T\n"
+                "**200GB** – 520T"
+            ),
+            inline=True,
         )
         embed.add_field(
-            name="🌐 Premium",
-            value="10GB – 80 Toman | 20GB – 160 Toman\n30GB – 240 Toman | 40GB – 320 Toman\n50GB – 400 Toman",
-            inline=False,
+            name="🌐 Premium (ویژه)",
+            value=(
+                "**10GB** – 80T\n"
+                "**20GB** – 160T\n"
+                "**30GB** – 240T\n"
+                "**40GB** – 320T\n"
+                "**50GB** – 400T"
+            ),
+            inline=True,
         )
 
-        # View for button & select
         view = discord.ui.View(timeout=None)
 
-        # Button to Telegram
         buy_button = discord.ui.Button(
-            label="🛒 Kharid az telegram",
+            label="📱 Telegram Channel",
             style=discord.ButtonStyle.link,
             url="https://t.me/Shop_HyperSheild",
         )
         view.add_item(buy_button)
 
-        Assistant_button = discord.ui.Button(
+        assistant_button = discord.ui.Button(
             label="🧑‍💻 Support",
             style=discord.ButtonStyle.link,
             url="https://t.me/Assistant_HyperShield",
         )
-        view.add_item(Assistant_button)
+        view.add_item(assistant_button)
 
-        # Select menu for plans
         select = discord.ui.Select(
-            placeholder="Yek plan entekhab konid...",
+            placeholder="📦 Yek plan entekhab konid...",
             options=[
-                discord.SelectOption(label="10GB – 40 Toman", value="10g"),
-                discord.SelectOption(label="20GB – 65 Toman", value="20g"),
-                discord.SelectOption(label="30GB – 90 Toman", value="30g"),
-                discord.SelectOption(label="40GB – 130 Toman", value="40g"),
-                discord.SelectOption(label="50GB – 160 Toman", value="50g"),
-                discord.SelectOption(label="60GB – 190 Toman", value="60g"),
-                discord.SelectOption(label="80GB – 210 Toman", value="80g"),
-                discord.SelectOption(label="100GB – 260 Toman", value="100g"),
-                discord.SelectOption(label="150GB – 390 Toman", value="150g"),
-                discord.SelectOption(label="200GB – 520 Toman", value="200g"),
+                discord.SelectOption(label="⚡10GB – 40T", value="10g"),
+                discord.SelectOption(label="⚡20GB – 65T", value="20g"),
+                discord.SelectOption(label="⚡30GB – 90T", value="30g"),
+                discord.SelectOption(label="⚡40GB – 130T", value="40g"),
+                discord.SelectOption(label="⚡50GB – 160T", value="50g"),
+                discord.SelectOption(label="⚡60GB – 190T", value="60g"),
+                discord.SelectOption(label="⚡80GB – 210T", value="80g"),
+                discord.SelectOption(label="⚡100GB – 260T", value="100g"),
+                discord.SelectOption(label="⚡150GB – 390T", value="150g"),
+                discord.SelectOption(label="⚡200GB – 520T", value="200g"),
             ],
         )
 
-        # تعریف callback به عنوان closure تا به select دسترسی داشته باشه
         async def select_callback(interaction: discord.Interaction):
-            selected = interaction.data["values"][0]
-            plan_text = next(
-                opt.label for opt in select.options if opt.value == selected
-            )
-
-            guild = interaction.guild
-            author = interaction.user
-
-            # پیدا کردن یا ایجاد دسته تیکت‌ها
-            category_name = "HyperShield"
-            category = discord.utils.get(guild.categories, name=category_name)
-            if category is None:
-                category = await guild.create_category(category_name)
-
-            # Permission Overwrites
-            overwrites = {
-                guild.default_role: discord.PermissionOverwrite(view_channel=False),
-                author: discord.PermissionOverwrite(
-                    view_channel=True, send_messages=True
-                ),
-            }
-
-            # ایجاد کانال تیکت
-            ticket_channel = await guild.create_text_channel(
-                name=f"ticket-{author.name}",
-                category=category,
-                overwrites=overwrites,
-                reason=f"Ticket for {author}",
-            )
-
-            # پیام داخل تیکت
-            await ticket_channel.send(
-                f"Salam {author.mention}! ✅\n"
-                f"Shoma plan **{plan_text}** ro entekhab kardi.\n\n"
-                f"Lotfan be in shomare kart vaariz konid:\n"
-                "💳 1234-5678-9012-3456\n"
-                f"Va tasvir varizi ro inja ersal konid.\n\n"
-                f"Payamaye shoma be Admin ha etela' dade mishavad."
-            )
-
-            # اطلاع‌رسانی به Admin
-            admin_channel = discord.utils.get(guild.text_channels, name="admin-notify")
-            if admin_channel:
-                await admin_channel.send(
-                    f"📌 User {author.mention} plan **{plan_text}** ro entekhab kard. "
-                    f"Tasvir varizy ro check kon."
+            try:
+                selected = interaction.data["values"][0]
+                plan_text = next(
+                    opt.label for opt in select.options if opt.value == selected
                 )
 
-            # پاسخ ephemeral
-            await interaction.response.send_message(
-                f"🎫 Ticket shoma baraye plan **{plan_text}** sakhte shod ✅",
-                ephemeral=True,
-            )
+                guild = interaction.guild
+                author = interaction.user
+
+                category = discord.utils.get(guild.categories, name=CATEGORY_NAME)
+                if category is None:
+                    category = await guild.create_category(CATEGORY_NAME)
+
+                overwrites = {
+                    guild.default_role: discord.PermissionOverwrite(view_channel=False),
+                    author: discord.PermissionOverwrite(
+                        view_channel=True, send_messages=True, read_message_history=True
+                    ),
+                    guild.me: discord.PermissionOverwrite(
+                        view_channel=True,
+                        send_messages=True,
+                        read_message_history=True,
+                        manage_messages=True,
+                    ),
+                }
+
+                ticket_channel = await guild.create_text_channel(
+                    name=f"ticket-{author.name}",
+                    category=category,
+                    overwrites=overwrites,
+                    reason=f"Ticket for {author}",
+                )
+
+                ticket_embed = discord.Embed(
+                    title="🎫 HyperShield | Ticket",
+                    description=(
+                        f"👋 Salam {author.mention}!\n\n"
+                        f"✅ Shoma plan **{plan_text}** ro entekhab kardi.\n\n"
+                        "🔹 Lotfan mablagh ro be shomare kart zir vaariz konid:\n"
+                        f"💳 **{CARD_NUMBER}**\n\n"
+                        "📸 Tasvir-e vaarizi ro dar in ticket ersal konid.\n\n"
+                        "🛡️ Payamhaye shoma faghat tavasot **Admin-ha** dida mishavad."
+                    ),
+                    color=discord.Color.green(),
+                )
+
+                await ticket_channel.send(embed=ticket_embed)
+
+                # Notify admin channel
+                admin_channel = discord.utils.get(
+                    guild.text_channels, name=ADMIN_CHANNEL_NAME
+                )
+                if admin_channel:
+                    await admin_channel.send(
+                        f"🚨 Ticket jadid sakhte shod!\n\n"
+                        f"👤 User: {author.mention}\n"
+                        f"📦 Plan: **{plan_text}**\n"
+                        f"📂 Channel: {ticket_channel.mention}\n\n"
+                        "📝 Lotfan tasvir-e vaarizi ro barrasi konid."
+                    )
+
+                await interaction.response.send_message(
+                    f"🎟️ Ticket shoma baraye plan **{plan_text}** sakhte shod!\n👉 {ticket_channel.mention}",
+                    ephemeral=True,
+                )
+
+            except Exception as e:
+                await interaction.response.send_message(
+                    f"⚠️ Error: {str(e)}", ephemeral=True
+                )
 
         select.callback = select_callback
         view.add_item(select)
