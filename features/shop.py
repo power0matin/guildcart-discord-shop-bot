@@ -1,5 +1,10 @@
 import discord
 from discord.ext import commands
+import os
+from dotenv import load_dotenv
+
+# Load the .env file
+load_dotenv()
 
 
 class Shop(commands.Cog):
@@ -12,10 +17,10 @@ class Shop(commands.Cog):
         """
         HyperShield Shop — فروشگاه رسمی هایپرشیلد
         """
-        CATEGORY_NAME = "🎫 HyperShield Tickets"
-        ADMIN_CHANNEL_NAME = "admin-notify"
-        ADMIN_ROLE_NAME = "Admin"
-        CARD_NUMBER = "1234-5678-9012-3456"
+        CATEGORY_NAME = os.getenv("CATEGORY_NAME")
+        ADMIN_CHANNEL_NAME = os.getenv("ADMIN_CHANNEL_NAME")
+        ADMIN_ROLE_NAME = os.getenv("ADMIN_ROLE_NAME")
+        CARD_NUMBER = os.getenv("CARD_NUMBER")
 
         embed = discord.Embed(
             title="💎 HyperShield | سرورهای پرسرعت آلمان 🇩🇪",

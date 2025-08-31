@@ -1,24 +1,3 @@
-# bot.py
-"""
-Main runner for the Discord bot.
-
-This file sets up the bot instance, loads configurations, handles logging,
-automatically loads all cogs from the features/ directory, and runs the bot.
-It uses environment variables for sensitive data like the bot token.
-
-Key features:
-- Auto-loads all cogs on startup.
-- Supports both prefix-based and slash commands (via hybrid commands where applicable).
-- Custom error handling with user-friendly feedback.
-- Logging of events to logs/bot.log.
-- On ready, prints bot info and connected guilds.
-- Custom help command.
-
-How to run:
-- Set DISCORD_TOKEN in your environment variables.
-- python bot.py
-"""
-
 import discord
 from discord.ext import commands
 import os
