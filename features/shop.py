@@ -7,6 +7,8 @@ from discord import app_commands, TextStyle
 from discord.ext import commands
 from discord.ui import Modal, TextInput, Select, Button, View
 from dotenv import load_dotenv
+import random
+
 
 # Load environment variables
 load_dotenv()
@@ -307,24 +309,32 @@ class ShopCog(commands.Cog):
                     view_channel=True, send_messages=True, read_messages=True
                 )
 
-            # Use author.id instead of discriminator (deprecated)
-            ticket_name = f"ticket-{author.name}-{author.id % 10000:04d}"  # Shortened ID for name length
+            # Name for the ticket channel with random 6-digit number
+            ticket_name = f"ticket-{author.name}-{random.randint(100000, 999999)}"
+
             try:
+                # Create the ticket channel in the specified category
                 ticket_channel = await category.create_text_channel(
                     name=ticket_name,
-                    overwrites=overwrites,
-                    reason=f"Ticket for {author.name} ({author.id})",
+                    overwrites=overwrites,  # Permission overwrites
+                    reason=f"Ticket for {author.name} ({author.id})",  # Audit log reason
                 )
+
+                # Log successful creation
                 logger.info(
                     f"Created ticket channel {ticket_channel.id} for user {author.id}"
                 )
+
             except discord.Forbidden:
+                # Bot lacks permission to create channel
                 await interaction.followup.send(
                     "⚠️ Bot majaz be sakht channel nist.", ephemeral=True
                 )
                 logger.error("Bot lacks permission to create text channel")
                 return
+
             except Exception as e:
+                # Catch any other unexpected errors
                 await interaction.followup.send(
                     "⚠️ Khataye dakheli rokh dad.", ephemeral=True
                 )
