@@ -16,3 +16,4 @@ LOG_LEVEL = "INFO"  # Logging level: DEBUG, INFO, WARNING, ERROR, CRITICAL
 SERVER_SETTINGS = {
     # 1234567890: {'welcome_channel': 0987654321}
 }
+

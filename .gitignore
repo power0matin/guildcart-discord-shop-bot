@@ -4,3 +4,6 @@
 # Ignore logs
 logs/
 *.log
+
+# Ignore config files
+config.json

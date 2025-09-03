@@ -1,0 +1,7 @@
+{
+  "plans": [
+    { "label": "Plan A – 50T", "value": "plan_a" },
+    { "label": "Plan B – 100T", "value": "plan_b" },
+    { "label": "Plan C – 200T", "value": "plan_c" }
+  ]
+}
