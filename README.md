@@ -1,5 +1,12 @@
 # 💎 Discord Shop & Ticket Bot
 
+<!-- repo-badges:start -->
+<p align="center">
+  <a href="https://hits.sh/github.com/power0matin/Harmony-DiscordBot/"><img src="https://hits.sh/github.com/power0matin/Harmony-DiscordBot.svg?style=flat-square&amp;label=Views&amp;labelColor=18181B&amp;color=0EA5E9&amp;logo=github" alt="Repository Views"/></a>
+  <img src="https://img.shields.io/badge/Visibility-Private-8B5CF6?style=flat-square&amp;labelColor=18181B&amp;logo=github&amp;logoColor=white" alt="Private Repository"/>
+</p>
+<!-- repo-badges:end -->
+
 A professional **Discord bot** for selling plans, collecting payments, and managing support tickets.
 Built with **discord.py**, it supports modals for payment, automatic ticket channels, admin notifications, and fully configurable via `.env`.
 
