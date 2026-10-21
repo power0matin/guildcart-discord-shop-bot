@@ -227,7 +227,7 @@ class ShopCog(commands.Cog):
 
             plan_label, price_label = (
                 (
-                    selected_label.split("–")[0].strip()[1:],
+                    selected_label.split("–")[0].strip(),
                     selected_label.split("–")[1].strip(),
                 )
                 if "–" in selected_label
