@@ -3,7 +3,7 @@
 GuildCart is an open-source Discord shop bot project aimed at configurable sales of digital products and subscriptions. The first real-world use case is VPN subscription sales, but the core is intended to remain independent of any single brand, VPN panel, payment method, or Discord server.
 
 > [!WARNING]
-> **Early prototype — not production-ready.** The current code provides a basic shop menu, ticket creation, a payment-details modal, and admin notifications. It does not yet provide durable order/payment records, verified payment processing, automated product delivery, or reliable subscription lifecycle management. Do not use it to fulfil real orders until the relevant roadmap acceptance criteria and tests are complete.
+> **Early prototype — not production-ready.** The current code provides a shop menu, ticket creation, SQLite-backed pending orders, and manual staff review commands. User-submitted payment details are not independently verified, and approving an order does not deliver a product or provision a VPN subscription. Do not use this version to fulfil real paid orders.
 
 ## Project goals
 
@@ -27,11 +27,11 @@ The repository is an early proof of concept.
 | Payment-details modal | Collects user-submitted fields; does **not** verify payment |
 | Admin notification | Basic implementation; failure handling needs work |
 | Configuration through `.env` and `config.json` | Partial, legacy format |
-| Persistent order/payment database | Not implemented in the current flow |
-| Admin approve/reject workflow | Not implemented |
+| SQLite-backed pending order records | Implemented; includes per-guild scope and review metadata |
+| Manual order review | `/orders`, `/order approve`, and `/order reject`; requires administrator permission or configured shop-admin role |
 | Automatic delivery or VPN provisioning | Not implemented |
 | Subscription renewals, expiry and usage limits | Not implemented |
-| Automated checks | Basic CI smoke check exists; application test suite is not yet established |
+| Automated checks | CI runs unit tests for plan parsing and SQLite order transitions, plus syntax checks |
 
 This table describes code that exists today; planned features are not implied to be implemented.
 
@@ -42,7 +42,7 @@ This table describes code that exists today; planned features are not implied to
 - `python-dotenv`
 - JSON configuration for the current prototype
 
-SQLite is a planned first persistent store, not a completed payment database in the current implementation. See the roadmap before relying on the prototype.
+SQLite stores order status and review metadata for a single bot instance. It does not verify payment or deliver products. See the roadmap before relying on the prototype.
 
 ## Quick start (prototype)
 
@@ -85,7 +85,7 @@ cp config.json.example config.json
 
 Edit `.env` and set `DISCORD_TOKEN` to your bot token. Treat it as a password: never commit `.env`, paste the token into issues, or include it in logs. Configure channel/role names and shop messages for a **test server** first.
 
-The current example configuration uses the legacy label format such as `Starter – 50T`. The prototype parses the displayed label to infer a price, which is fragile and is scheduled to be replaced with separate structured fields for product name, amount, currency, duration, and limits. The sample amounts are placeholders, not recommended pricing.
+The current example configuration uses the legacy label format such as `Starter – 50T`. The prototype parses the displayed label to infer the price; this will be replaced by structured product fields before a stable release. The sample amounts are placeholders, not recommended pricing.
 
 ### 4. Run
 
@@ -93,7 +93,7 @@ The current example configuration uses the legacy label format such as `Starter 
 python bot.py
 ```
 
-Use `/shop` in a test server. Because the current implementation is incomplete, a user-submitted amount or payment reference must not be treated as proof of payment, and this prototype must not be used to automatically provision a paid subscription.
+Use `/shop` in a test server. A user-submitted amount or payment reference is not proof of payment. The order-review commands record staff decisions only; this prototype does not automatically provision a paid subscription.
 
 ## Configuration files
 
@@ -102,6 +102,18 @@ Use `/shop` in a test server. Because the current implementation is incomplete, 
 - `.env` and `config.json`: local files; never commit them.
 
 The long-term configuration schema is documented in [ROADMAP.md](ROADMAP.md). Expect a breaking schema migration before the first stable release.
+
+## Manual order review (prototype)
+
+After setting up the bot in a test server:
+
+- Run `/shop`, select a plan, and submit the payment details in the ticket.
+- Staff can run `/orders` to list up to 10 pending orders in that server.
+- After checking payment independently, authorized staff can run `/order approve <order_id>` or `/order reject <order_id> <reason>`.
+- Decisions and reviewer IDs are saved in SQLite. A rejected or already-reviewed order cannot be reviewed again.
+- A submitted order is saved before the staff notification is attempted. If that notification fails, the order remains available through `/orders`.
+
+Approval records a manual staff decision only. No product or VPN subscription is automatically provisioned yet. The form's cardholder name and last four digits are sent to the staff channel but are not stored in the SQLite order record; optional transaction references are stored locally.
 
 ## Security and operational notes
 

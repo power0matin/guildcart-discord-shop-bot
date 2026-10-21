@@ -18,7 +18,7 @@ GuildCart is an open-source, self-hostable Discord shop and order-management bot
 
 ## Current status (2026-10-21)
 
-The current repository is an early prototype. The shop selector, private ticket creation, payment-details modal, and basic admin notification exist in some form. Durable order/payment persistence, admin payment decisions, automatic product delivery, VPN provisioning, subscription renewals/expiry, robust persistent interactions, and an automated test suite are not complete.
+The current repository is an early prototype. The shop selector, ticket creation, SQLite-backed pending orders, and manual staff review commands exist. Trusted payment verification, automatic product delivery, VPN provisioning, subscription renewals/expiry, restart-safe Discord interactions, and end-to-end testing in a Discord test guild remain incomplete. Do not use this revision to fulfil real paid orders.
 
 Do not use the current revision to fulfil real paid orders. No release milestone below should be treated as complete until its acceptance criteria are demonstrated by code and tests.
 
@@ -28,7 +28,7 @@ Do not use the current revision to fulfil real paid orders. No release milestone
 
 - [x] Adopt the GuildCart project name consistently in README, default shop text, ticket embeds, sample configuration, and documentation.
 - [x] Choose and apply the final GitHub repository slug (`guildcart-discord-shop-bot`).
-- [ ] Set the repository description and relevant GitHub Topics.
+- [x] Set the repository description and relevant GitHub Topics.
 - [ ] Remove tracked `__pycache__`, `.pyc`, local databases, logs, generated artifacts, and local configuration files.
 - [x] Expand `.gitignore` for Python caches, virtual environments, `.env`, local config, database files, coverage, and build output.
 - [ ] Scan the current tree and the full Git history for tokens, credentials, private URLs, payment data, and customer information before changing visibility.
@@ -87,15 +87,15 @@ Do not use the current revision to fulfil real paid orders. No release milestone
 
 **Goal:** implement a reliable human-reviewed sales workflow.
 
-- [ ] Add durable storage, beginning with SQLite for a single self-hosted instance; keep the repository/data access layer compatible with a later PostgreSQL option if scale justifies it.
+- [x] Add durable SQLite order storage for a single self-hosted instance; PostgreSQL support remains a future decision.
 - [ ] Define order and payment-attempt records with stable IDs, guild ID, customer ID, product snapshot, amount/currency, timestamps, and state.
 - [ ] Define explicit order states: `pending_payment`, `pending_review`, `paid`, `rejected`, `cancelled`, `fulfilled`, and `refunded` where supported.
-- [ ] Make state transitions explicit and validate allowed transitions; store reviewer and reason for manual decisions.
-- [ ] Provide admin-only approve/reject actions with permission checks independent of role display names.
+- [x] Guard manual review transitions and store reviewer, review time, and reason.
+- [x] Provide approve/reject commands protected by administrator permission or the configured shop-admin role; replacing role-name matching with stable IDs remains open.
 - [ ] Treat a receipt/reference as submitted evidence only. Do not mark an order paid merely because form values match the expected price.
-- [ ] Send a user confirmation that clearly says the order was submitted for review, not that payment was verified.
-- [ ] Add order history and durable correlation between a ticket, order, payment attempt, and Discord user.
-- [ ] Handle duplicate clicks, repeated modal submissions, missing notification channels, and database write failures.
+- [x] Confirm only that the order was submitted for review; explicitly state that submission is not payment verification.
+- [x] Store durable order IDs, guild/customer IDs, product/price snapshots, and the originating ticket channel ID.
+- [x] Persist an order before attempting staff notification and report database/notification failures honestly; duplicate form submissions still need deduplication.
 - [ ] Add migrations, backups, and retention/privacy guidance for stored customer records.
 
 **Exit criteria**

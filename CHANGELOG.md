@@ -5,10 +5,15 @@ Not every repository change is a release. This file records user-visible changes
 ## Unreleased
 
 ### Added
+- SQLite-backed order records with per-guild scope and review metadata.
+- Staff commands to list, approve, and reject pending orders.
+- Unit tests for order persistence, guild isolation, and guarded state transitions.
 - Product roadmap with phased scope and acceptance criteria.
 - Contribution guidelines, security policy, issue templates, and a basic CI smoke check.
 
 ### Changed
+- Save payment submissions as pending orders before sending staff notifications.
+- Customer confirmation clearly states that manual review is pending and payment is not yet verified.
 - Introduced the GuildCart name and generic shop defaults in project documentation and example configuration.
 - Expanded Python/local runtime files in `.gitignore`.
 
