@@ -26,13 +26,14 @@ Do not use the current revision to fulfil real paid orders. No release milestone
 
 **Goal:** make the repository safe and understandable before wider public exposure.
 
-- [ ] Adopt the GuildCart project name consistently in README, default shop text, ticket embeds, sample configuration, and documentation.
-- [ ] Choose and apply the final GitHub repository slug and description.
+- [x] Adopt the GuildCart project name consistently in README, default shop text, ticket embeds, sample configuration, and documentation.
+- [x] Choose and apply the final GitHub repository slug (`guildcart-discord-shop-bot`).
+- [ ] Set the repository description and relevant GitHub Topics.
 - [ ] Remove tracked `__pycache__`, `.pyc`, local databases, logs, generated artifacts, and local configuration files.
-- [ ] Expand `.gitignore` for Python caches, virtual environments, `.env`, local config, database files, coverage, and build output.
+- [x] Expand `.gitignore` for Python caches, virtual environments, `.env`, local config, database files, coverage, and build output.
 - [ ] Scan the current tree and the full Git history for tokens, credentials, private URLs, payment data, and customer information before changing visibility.
 - [ ] Rotate any secret that was ever committed or disclosed; history rewriting alone is not enough.
-- [ ] Add contribution and vulnerability-reporting guidance.
+- [x] Add contribution and vulnerability-reporting guidance.
 - [ ] Verify the declared license is intentional and applies to the files being published.
 
 **Exit criteria**
@@ -46,7 +47,8 @@ Do not use the current revision to fulfil real paid orders. No release milestone
 
 **Goal:** a predictable startup and maintainable codebase before adding more sales features.
 
-- [ ] Load environment configuration before reading `DISCORD_TOKEN`; fail at startup with actionable validation messages for invalid required settings.
+- [x] Load environment configuration before reading `DISCORD_TOKEN`.
+- [ ] Fail at startup with actionable validation messages for invalid required settings.
 - [ ] Pin and test a supported Python/`discord.py` combination; document required Discord intents and permissions.
 - [ ] Replace broad exception swallowing during configuration/extension loading with explicit validation and useful structured logs.
 - [ ] Separate configuration loading, Discord UI, business rules, persistence, and external-service adapters.
