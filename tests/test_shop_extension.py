@@ -6,16 +6,19 @@ from types import SimpleNamespace
 import discord
 from discord.ext import commands
 
-from bot import COG_MODULES
-from features.shop import PLAN_OPTIONS, ShopCog, is_shop_admin
+from guildcart.app import COG_MODULES, create_bot
+from guildcart.cogs.shop import PLAN_OPTIONS, ShopCog, is_shop_admin
+from guildcart.settings import Settings
 
 
 class ShopExtensionTests(unittest.IsolatedAsyncioTestCase):
     async def test_shop_cog_registers_expected_commands(self):
-        bot = commands.Bot(command_prefix="$", intents=discord.Intents.none())
+        bot = create_bot(Settings.from_environment())
         try:
-            await bot.add_cog(ShopCog(bot))
+            for extension in COG_MODULES:
+                await bot.load_extension(extension)
 
+            self.assertIsNotNone(bot.get_command("help"))
             self.assertIsNotNone(bot.get_command("shop"))
             self.assertIsNotNone(bot.get_command("orders"))
             order_group = bot.get_command("order")
@@ -29,7 +32,7 @@ class ShopExtensionTests(unittest.IsolatedAsyncioTestCase):
             await bot.close()
 
     async def test_only_discord_cogs_are_loaded(self):
-        self.assertEqual(COG_MODULES, ("features.shop",))
+        self.assertEqual(COG_MODULES, ("guildcart.cogs.core", "guildcart.cogs.shop"))
 
     async def test_sample_shop_has_valid_plan_options(self):
         self.assertEqual(len(PLAN_OPTIONS), 3)

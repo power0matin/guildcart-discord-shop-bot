@@ -48,10 +48,13 @@ Do not use the current revision to fulfil real paid orders. No release milestone
 **Goal:** a predictable startup and maintainable codebase before adding more sales features.
 
 - [x] Load environment configuration before reading `DISCORD_TOKEN`.
+- [x] Make `main.py` the primary entry point and retain `bot.py` as a compatibility wrapper.
+- [x] Group application startup, Discord Cogs, domain utilities, and order storage under the `guildcart` package.
 - [ ] Fail at startup with actionable validation messages for invalid required settings.
 - [ ] Pin and test a supported Python/`discord.py` combination; document required Discord intents and permissions.
 - [ ] Replace broad exception swallowing during configuration/extension loading with explicit validation and useful structured logs.
-- [ ] Separate configuration loading, Discord UI, business rules, persistence, and external-service adapters.
+- [x] Separate application startup, runtime settings, Discord Cogs, domain validation, and SQLite persistence into package modules.
+- [ ] Separate the remaining shop/payment orchestration from Discord UI and external-service adapters.
 - [ ] Review application-command sync behavior so development changes do not cause unnecessary global syncs or rate-limit problems.
 - [ ] Define one error-response strategy for slash commands, component interactions, and prefix commands.
 - [ ] Add automated formatting/linting and type checks where they provide measurable value.

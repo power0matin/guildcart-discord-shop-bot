@@ -1,19 +1,9 @@
-# config.py
-"""
-Configuration file for the bot.
+"""Backward-compatible constants for the original config.py module."""
+from guildcart.settings import Settings
 
-Stores non-sensitive settings like prefix and logging level.
-Sensitive data like tokens should be in environment variables.
+_settings = Settings.from_environment()
+PREFIX = _settings.prefix
+LOG_LEVEL = _settings.log_level
+SERVER_SETTINGS = {}
 
-Server-specific settings can be added here as a dict, e.g., for per-guild configs.
-Optional: Logging config can be expanded here.
-"""
-
-PREFIX = "$"  # Command prefix for text-based commands
-LOG_LEVEL = "INFO"  # Logging level: DEBUG, INFO, WARNING, ERROR, CRITICAL
-
-# Example: Server-specific settings (guild_id: {'key': 'value'})
-SERVER_SETTINGS = {
-    # 1234567890: {'welcome_channel': 0987654321}
-}
-
+__all__ = ["PREFIX", "LOG_LEVEL", "SERVER_SETTINGS"]

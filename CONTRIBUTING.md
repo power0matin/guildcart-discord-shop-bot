@@ -28,3 +28,13 @@ The project is still an early prototype and its automated test/lint commands are
 - Make external side effects retry-safe where practical.
 - Validate permissions at the point of each privileged action.
 - Prefer clear, maintainable code to abstraction without a concrete use case.
+
+
+## Package structure
+
+- Start the bot with `python main.py` from the repository root.
+- Keep process startup and bot construction in `guildcart/app.py`.
+- Put Discord commands and interaction UI in `guildcart/cogs/`.
+- Keep domain validation in `guildcart/domain/` and persistence in `guildcart/storage/`.
+- Prefer imports from `guildcart.*`; legacy files at the repository root and under `features/` should remain thin compatibility wrappers.
+- Before submitting changes, run `python -m unittest discover -s tests -v` and `python -m compileall -q main.py bot.py config.py guildcart features tests`.
