@@ -31,7 +31,7 @@ The repository is an early proof of concept.
 | Admin approve/reject workflow | Not implemented |
 | Automatic delivery or VPN provisioning | Not implemented |
 | Subscription renewals, expiry and usage limits | Not implemented |
-| Test suite and CI | Not yet established |
+| Automated checks | Basic CI smoke check exists; application test suite is not yet established |
 
 This table describes code that exists today; planned features are not implied to be implemented.
 
@@ -52,11 +52,11 @@ Install Python 3.11 or newer and create a Discord application/bot in the Discord
 
 ### 2. Clone and install
 
-The GitHub repository may retain its original URL until the repository rename is completed:
+Clone the renamed repository:
 
 ```bash
-git clone https://github.com/power0matin/Harmony-DiscordBot.git
-cd Harmony-DiscordBot
+git clone https://github.com/power0matin/guildcart-discord-shop-bot.git
+cd guildcart-discord-shop-bot
 python -m venv .venv
 ```
 
@@ -85,7 +85,7 @@ cp config.json.example config.json
 
 Edit `.env` and set `DISCORD_TOKEN` to your bot token. Treat it as a password: never commit `.env`, paste the token into issues, or include it in logs. Configure channel/role names and shop messages for a **test server** first.
 
-The current example configuration uses the legacy label format such as `🛍️ Starter – 50T`. The prototype parses the displayed label to infer a price, which is fragile and is scheduled to be replaced with separate structured fields for product name, amount, currency, duration, and limits. The sample amounts are placeholders, not recommended pricing.
+The current example configuration uses the legacy label format such as `Starter – 50T`. The prototype parses the displayed label to infer a price, which is fragile and is scheduled to be replaced with separate structured fields for product name, amount, currency, duration, and limits. The sample amounts are placeholders, not recommended pricing.
 
 ### 4. Run
 
