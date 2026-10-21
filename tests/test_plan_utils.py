@@ -3,7 +3,7 @@
 import unittest
 from decimal import Decimal
 
-from features.plan_utils import parse_amount, parse_plan_label, validate_plans
+from guildcart.domain.plans import parse_amount, parse_plan_label, validate_plans
 
 
 class ParseAmountTests(unittest.TestCase):

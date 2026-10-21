@@ -44,6 +44,27 @@ This table describes code that exists today; planned features are not implied to
 
 SQLite stores order status and review metadata for a single bot instance. It does not verify payment or deliver products. See the roadmap before relying on the prototype.
 
+## Project layout
+
+```text
+main.py                     # Primary process entry point
+bot.py                      # Backward-compatible entry point
+guildcart/
+  app.py                    # Bot factory, startup and extension registration
+  settings.py               # Runtime settings and configuration validation
+  cogs/
+    core.py                 # Help command and shared Discord events
+    shop.py                 # Shop UI, tickets and order-review commands
+  domain/
+    plans.py                # Plan parsing and validation
+  storage/
+    order_store.py          # SQLite order repository
+features/                   # Compatibility wrappers for old imports
+tests/
+```
+
+Run GuildCart with `python main.py` from the repository root. The former `python bot.py` entry point remains as a compatibility wrapper. Internal code should import from `guildcart.*`; add Discord commands in `guildcart/cogs/`, domain rules in `guildcart/domain/`, and persistence adapters in `guildcart/storage/`.
+
 ## Quick start (prototype)
 
 ### 1. Requirements
@@ -90,7 +111,7 @@ The current example configuration uses the legacy label format such as `Starter 
 ### 4. Run
 
 ```bash
-python bot.py
+python main.py
 ```
 
 Use `/shop` in a test server. A user-submitted amount or payment reference is not proof of payment. The order-review commands record staff decisions only; this prototype does not automatically provision a paid subscription.

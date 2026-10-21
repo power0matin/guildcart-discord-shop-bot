@@ -4,7 +4,7 @@ import tempfile
 import unittest
 from pathlib import Path
 
-from features.order_store import (
+from guildcart.storage.order_store import (
     PAID,
     PENDING_REVIEW,
     REJECTED,

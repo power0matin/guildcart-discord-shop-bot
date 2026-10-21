@@ -4,6 +4,14 @@ Not every repository change is a release. This file records user-visible changes
 
 ## Unreleased
 
+### Changed
+- Established `main.py` as the primary process entry point and kept `bot.py` as a compatibility wrapper.
+- Introduced the `guildcart` package for application startup, settings, Discord Cogs, domain validation, and SQLite persistence.
+- Preserved old `features.*` and `config.py` import paths through compatibility wrappers.
+
+### Added
+- Architecture tests for the entry point, application factory, and explicit Cog registration.
+
 ### Added
 - CI smoke tests for shop Cog registration, command groups, sample plans, and admin gating.
 - SQLite-backed order records with per-guild scope and review metadata.

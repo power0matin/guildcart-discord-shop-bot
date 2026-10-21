@@ -2,7 +2,7 @@ name: CI
 
 on:
   push:
-    branches: [main, "chore/**", "fix/**", "feat/**"]
+    branches: [main, "chore/**", "fix/**", "feat/**", "refactor/**"]
   pull_request:
   workflow_dispatch:
 
@@ -37,4 +37,4 @@ jobs:
         run: python -m unittest discover -s tests -v
 
       - name: Compile application modules
-        run: python -m compileall -q bot.py config.py features tests
+        run: python -m compileall -q main.py bot.py config.py guildcart features tests
