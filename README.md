@@ -1,3 +1,5 @@
+<h1 align="center">GuildCart — Open-Source Discord Shop Bot</h1>
+
 <!-- repo-badges:start -->
 <p align="center">
   <a href="https://hits.sh/github.com/power0matin/guildcart-discord-shop-bot/"><img src="https://hits.sh/github.com/power0matin/guildcart-discord-shop-bot.svg?style=flat-square&amp;label=Views&amp;labelColor=18181B&amp;color=0EA5E9&amp;logo=github" alt="Repository Views"/></a>
@@ -7,8 +9,6 @@
   <a href="LICENSE"><img src="https://img.shields.io/github/license/power0matin/guildcart-discord-shop-bot?style=flat-square&amp;label=License&amp;labelColor=18181B&amp;color=EF4444&amp;logo=github&amp;logoColor=white" alt="GitHub License"/></a>
 </p>
 <!-- repo-badges:end -->
-
-# GuildCart — Open-Source Discord Shop Bot
 
 GuildCart is an open-source Discord shop bot project aimed at configurable sales of digital products and subscriptions. The first real-world use case is VPN subscription sales, but the core is intended to remain independent of any single brand, VPN panel, payment method, or Discord server.
 
