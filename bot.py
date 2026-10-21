@@ -3,6 +3,11 @@ from discord.ext import commands
 import os
 import logging
 import asyncio
+from dotenv import load_dotenv
+
+# Load local environment variables before reading DISCORD_TOKEN.
+load_dotenv()
+
 from config import PREFIX, LOG_LEVEL
 
 # Setup logging to file in logs/ directory

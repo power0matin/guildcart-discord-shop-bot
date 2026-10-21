@@ -29,7 +29,7 @@ CRYPTO_ADDRESS_USDT = os.getenv("CRYPTO_ADDRESS_USDT", "")
 TICKET_NAME_TEMPLATE = os.getenv("TICKET_NAME_TEMPLATE", "ticket-{author}-{rand6}")
 
 # Shop texts
-SHOP_TITLE = os.getenv("SHOP_TITLE", "💎 HyperShield | High Speed Servers")
+SHOP_TITLE = os.getenv("SHOP_TITLE", "🛒 GuildCart | Digital Shop")
 SHOP_DESCRIPTION = os.getenv("SHOP_DESCRIPTION", "")
 SHOP_FOOTER = os.getenv("SHOP_FOOTER", "")
 
@@ -145,7 +145,7 @@ class PaymentModal(Modal):
         # Confirm to user
         await interaction.followup.send(
             f"✅ Pardakht shoma sabt shod!\n"
-            f"User: {self.owner}\n"
+            f"User: {self.owner.value}\n"
             f"Plan: **{self.plan_label}** | Price: **{self.price_label}**\n"
             f"Amount: **{amount_val}T** | Last4: **{last4_val}**\nTx/Desc: {tx_val}",
             ephemeral=True,
@@ -167,7 +167,7 @@ class PaymentModal(Modal):
             admin_embed.add_field(
                 name="User", value=interaction.user.mention, inline=True
             )
-            admin_embed.add_field(name="Card Owner", value=self.owner, inline=True)
+            admin_embed.add_field(name="Card Owner", value=self.owner.value, inline=True)
             admin_embed.add_field(name="Plan", value=self.plan_label, inline=True)
             admin_embed.add_field(name="Price", value=self.price_label, inline=True)
             admin_embed.add_field(name="Amount", value=f"{amount_val}T", inline=True)
@@ -227,7 +227,7 @@ class ShopCog(commands.Cog):
 
             plan_label, price_label = (
                 (
-                    selected_label.split("–")[0].strip()[1:],
+                    selected_label.split("–")[0].strip(),
                     selected_label.split("–")[1].strip(),
                 )
                 if "–" in selected_label
@@ -270,7 +270,7 @@ class ShopCog(commands.Cog):
             )
 
             ticket_embed = discord.Embed(
-                title="🎫 HyperShield | Ticket",
+                title="🛒 GuildCart | Order Ticket",
                 description=f"✅ Shoma plan **{selected_label}** ro entekhab kardi.\n💳 **{CARD_NUMBER}**\n📸 Tasvir pardakht ro ersal konid.",
                 timestamp=datetime.utcnow(),
             )

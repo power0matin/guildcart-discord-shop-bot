@@ -1,0 +1,47 @@
+name: Bug report
+description: Report a reproducible problem in GuildCart.
+title: "[Bug]: "
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Do not include Discord bot tokens, VPN credentials, payment details, private customer data, or production access links.
+  - type: textarea
+    id: summary
+    attributes:
+      label: Summary
+      description: What happened, and what did you expect?
+    validations:
+      required: true
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Steps to reproduce
+      placeholder: |
+        1. Configure ...
+        2. Run ...
+        3. Trigger ...
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: GuildCart revision
+      description: Commit SHA or release tag.
+    validations:
+      required: true
+  - type: input
+    id: environment
+    attributes:
+      label: Environment
+      description: Python version, OS/container, and discord.py version.
+    validations:
+      required: true
+  - type: textarea
+    id: logs
+    attributes:
+      label: Redacted logs
+      description: Remove tokens, access links, IDs and customer data where sensitive.
+    validations:
+      required: false
