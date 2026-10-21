@@ -1,8 +1,11 @@
-import os
+import asyncio
 import json
 import logging
+import os
 import random
-from datetime import datetime
+import sqlite3
+from datetime import datetime, timezone
+from functools import lru_cache
 
 import discord
 from discord import TextStyle
@@ -10,258 +13,310 @@ from discord.ext import commands
 from discord.ui import Modal, TextInput, Select, Button, View
 from dotenv import load_dotenv
 
+from features.order_store import (
+    PAID,
+    REJECTED,
+    OrderNotFoundError,
+    OrderStateError,
+    OrderStore,
+)
 from features.plan_utils import parse_amount, parse_plan_label, validate_plans
 
-# Load environment variables
 load_dotenv()
 
-# Discord settings
-DISCORD_TOKEN = os.getenv("DISCORD_TOKEN")
 CATEGORY_NAME = os.getenv("CATEGORY_NAME", "tickets")
 ADMIN_CHANNEL_NAME = os.getenv("ADMIN_CHANNEL_NAME", "admin-notify")
 ADMIN_ROLE_NAME = os.getenv("ADMIN_ROLE_NAME", "Admin")
-
-# Payment settings
-CARD_NUMBER = os.getenv("CARD_NUMBER", "**** **** **** 4242")
 PAYMENT_TIMEOUT_MINUTES = int(os.getenv("PAYMENT_TIMEOUT_MINUTES", 30))
 PAYMENTS_DB = os.getenv("PAYMENTS_DB", "data/payments.db")
+CARD_NUMBER = os.getenv("CARD_NUMBER", "Configure payment instructions privately")
 CRYPTO_ADDRESS_USDT = os.getenv("CRYPTO_ADDRESS_USDT", "")
-
-# Ticket settings
 TICKET_NAME_TEMPLATE = os.getenv("TICKET_NAME_TEMPLATE", "ticket-{author}-{rand6}")
 
-# Shop texts
 SHOP_TITLE = os.getenv("SHOP_TITLE", "🛒 GuildCart | Digital Shop")
 SHOP_DESCRIPTION = os.getenv("SHOP_DESCRIPTION", "")
 SHOP_FOOTER = os.getenv("SHOP_FOOTER", "")
-
-# Telegram links
 TELEGRAM_SHOP_URL = os.getenv("TELEGRAM_SHOP_URL", "")
 TELEGRAM_SUPPORT_URL = os.getenv("TELEGRAM_SUPPORT_URL", "")
+BTN_SHOP_LABEL = os.getenv("BTN_SHOP_LABEL", "Shop channel")
+BTN_SUPPORT_LABEL = os.getenv("BTN_SUPPORT_LABEL", "Support")
+BTN_PAY_LABEL = os.getenv("BTN_PAY_LABEL", "Submit payment details")
+BTN_CLOSE_LABEL = os.getenv("BTN_CLOSE_LABEL", "Close ticket")
 
-# Button labels
-BTN_SHOP_LABEL = os.getenv("BTN_SHOP_LABEL", "📱 Telegram Channel")
-BTN_SUPPORT_LABEL = os.getenv("BTN_SUPPORT_LABEL", "🧑‍💻 Support")
-BTN_PAY_LABEL = os.getenv("BTN_PAY_LABEL", "💳 Sabt Pardakht")
-BTN_CLOSE_LABEL = os.getenv("BTN_CLOSE_LABEL", "🔒 Bastan Ticket")
 
-# Load and validate plan options so invalid settings fail during startup instead
-# of producing a broken selector only when a customer tries to place an order.
+@lru_cache(maxsize=4)
+def get_order_store() -> OrderStore:
+    """Reuse a repository instance and initialize the database on first use."""
+    return OrderStore(PAYMENTS_DB)
+
+
 try:
-    with open("config.json", "r", encoding="utf-8") as f:
-        shop_config = json.load(f)
+    with open("config.json", "r", encoding="utf-8") as config_file:
+        shop_config = json.load(config_file)
     if not isinstance(shop_config, dict):
         raise ValueError("The root value must be a JSON object.")
-    validated_plans = validate_plans(shop_config.get("plans"))
     PLAN_OPTIONS = [
         discord.SelectOption(label=item["label"], value=item["value"])
-        for item in validated_plans
+        for item in validate_plans(shop_config.get("plans"))
     ]
 except (OSError, json.JSONDecodeError, ValueError) as exc:
     raise RuntimeError(f"Invalid shop configuration in config.json: {exc}") from exc
 
-# Logging setup
+
 logger = logging.getLogger("shop_ticket_payment")
 logger.setLevel(logging.INFO)
-handler = logging.StreamHandler()
-handler.setFormatter(logging.Formatter("%(asctime)s - %(levelname)s - %(message)s"))
-logger.addHandler(handler)
+if not any(getattr(handler, "_guildcart_shop_handler", False) for handler in logger.handlers):
+    handler = logging.StreamHandler()
+    handler.setFormatter(logging.Formatter("%(asctime)s - %(levelname)s - %(message)s"))
+    handler._guildcart_shop_handler = True
+    logger.addHandler(handler)
 
 
 def generate_ticket_name(author):
-    """Generate a ticket name based on template in .env"""
+    """Generate a ticket name from the configured template."""
     return TICKET_NAME_TEMPLATE.format(
         author=author.name, rand6=random.randint(100000, 999999)
     )
 
 
+def is_shop_admin(member) -> bool:
+    """Check permissions when every privileged order action is invoked."""
+    permissions = getattr(member, "guild_permissions", None)
+    if permissions and permissions.administrator:
+        return True
+    return any(role.name == ADMIN_ROLE_NAME for role in getattr(member, "roles", ()))
+
+
+async def send_context(ctx: commands.Context, *args, **kwargs):
+    """Use ephemeral replies for interactions without breaking prefix commands."""
+    if ctx.interaction is None:
+        kwargs.pop("ephemeral", None)
+    return await ctx.send(*args, **kwargs)
+
+
+async def notify_customer(guild: discord.Guild, order, message: str) -> None:
+    """Best-effort DM; delivery failure must not undo the saved review decision."""
+    member = guild.get_member(order.customer_id)
+    if member is None:
+        try:
+            member = await guild.fetch_member(order.customer_id)
+        except discord.HTTPException:
+            logger.info("Could not resolve customer for order %s", order.order_id)
+            return
+    try:
+        await member.send(message)
+    except discord.HTTPException:
+        logger.info("Customer DM unavailable for order %s", order.order_id)
+
+
 class PaymentModal(Modal):
-    """Modal for registering payment details."""
+    """Collect payment claims for staff review; this modal does not verify payment."""
 
     def __init__(self, plan_label: str, price_label: str, ticket_channel_id: int):
         super().__init__(title=BTN_PAY_LABEL)
         self.plan_label = plan_label
         self.price_label = price_label
         self.ticket_channel_id = ticket_channel_id
-
         self.last4 = TextInput(
-            label="4 ragham akhar kart",
-            placeholder="1234",
-            min_length=4,
-            max_length=4,
-            required=True,
+            label="Last 4 digits of card", placeholder="1234",
+            min_length=4, max_length=4, required=True,
         )
         self.owner = TextInput(
-            label="name saheb kart",
-            placeholder="ali rezaei",
-            min_length=2,
-            max_length=35,
-            required=True,
+            label="Cardholder name", placeholder="Name as shown by the bank",
+            min_length=2, max_length=35, required=True,
         )
         self.amount = TextInput(
-            label="Mablagh (amount)",
-            placeholder=f"mesal: {price_label[:-1]}",
-            min_length=1,
-            required=True,
+            label="Amount", placeholder=f"Example: {price_label[:-1]}",
+            min_length=1, max_length=32, required=True,
         )
         self.tx = TextInput(
-            label="Tx ID / Description (optional)", required=False, style=TextStyle.long
+            label="Transaction reference / note (optional)",
+            required=False, max_length=1000, style=TextStyle.long,
         )
-
         self.add_item(self.last4)
         self.add_item(self.amount)
         self.add_item(self.owner)
         self.add_item(self.tx)
 
     async def on_submit(self, interaction: discord.Interaction):
-        last4_val = self.last4.value.strip()
-        tx_val = self.tx.value.strip() or "N/A"
+        last4_value = self.last4.value.strip()
+        transaction_reference = self.tx.value.strip()
 
-        # Validate last4
-        if not last4_val.isdigit() or len(last4_val) != 4:
+        if not last4_value.isdigit() or len(last4_value) != 4:
             await interaction.response.send_message(
-                "⚠️ Last4 bayad 4 ragham numeric bashe.", ephemeral=True
+                "The card field must contain exactly four digits.", ephemeral=True
             )
             return
 
-        # Use Decimal to avoid binary float comparison errors.
         try:
-            amount_val = parse_amount(self.amount.value)
-            expected_price = parse_amount(self.price_label)
+            submitted_amount = parse_amount(self.amount.value)
+            expected_amount = parse_amount(self.price_label)
         except ValueError:
             await interaction.response.send_message(
-                "⚠️ Mablagh ghalat ast. Lotfan adad mojaz vared konid (mesal: 40).",
+                "Enter a valid positive amount.", ephemeral=True
+            )
+            return
+
+        if submitted_amount != expected_amount:
+            await interaction.response.send_message(
+                f"Entered amount ({submitted_amount}) does not match "
+                f"the listed price ({self.price_label}).",
                 ephemeral=True,
             )
             return
 
-        if amount_val != expected_price:
+        if interaction.guild_id is None or interaction.guild is None:
             await interaction.response.send_message(
-                f"⚠️ Mablagh vared shode ({amount_val}T) ba gheymat plan ({self.price_label}) motabeghat nadarad.",
-                ephemeral=True,
+                "Orders can only be submitted from a server ticket.", ephemeral=True
             )
             return
 
         await interaction.response.defer(ephemeral=True)
 
-        # User-submitted details are only claims; they do not prove payment.
-        admin_channel = None
-        if interaction.guild is not None:
-            admin_channel = discord.utils.get(
-                interaction.guild.text_channels, name=ADMIN_CHANNEL_NAME
+        # Save first. Cardholder name and card digits are deliberately not stored.
+        try:
+            order = await asyncio.to_thread(
+                get_order_store().create_order,
+                guild_id=interaction.guild_id,
+                customer_id=interaction.user.id,
+                product_label=self.plan_label,
+                price_label=self.price_label,
+                submitted_amount=str(submitted_amount),
+                payment_reference=transaction_reference,
+                ticket_channel_id=self.ticket_channel_id,
             )
-
-        if admin_channel is None:
-            logger.error(
-                "Cannot submit payment details: admin channel %r is missing in guild %s",
-                ADMIN_CHANNEL_NAME,
-                interaction.guild_id,
+        except (OSError, sqlite3.Error, ValueError):
+            logger.exception(
+                "Unable to persist an order for guild %s", interaction.guild_id
             )
             await interaction.followup.send(
-                "⚠️ Payam-e modir resid nashod. Etelaate pardakht sabt nashod; "
-                "lotfan ba modir server tamas begirid.",
+                "The order could not be saved. No review request was created; "
+                "please contact the shop staff.",
                 ephemeral=True,
             )
             return
 
+        admin_channel = discord.utils.get(
+            interaction.guild.text_channels, name=ADMIN_CHANNEL_NAME
+        )
         admin_role = discord.utils.get(interaction.guild.roles, name=ADMIN_ROLE_NAME)
-        mention_text = admin_role.mention if admin_role else ""
         admin_embed = discord.Embed(
-            title="💳 Payment details submitted — review required",
+            title="Payment details submitted — manual review required",
             color=discord.Color.orange(),
-            timestamp=datetime.utcnow(),
+            timestamp=datetime.now(timezone.utc),
+        )
+        admin_embed.add_field(name="Order ID", value=order.order_id, inline=False)
+        admin_embed.add_field(name="Customer", value=interaction.user.mention, inline=True)
+        admin_embed.add_field(name="Cardholder", value=self.owner.value, inline=True)
+        admin_embed.add_field(name="Product", value=self.plan_label, inline=True)
+        admin_embed.add_field(name="Listed price", value=self.price_label, inline=True)
+        admin_embed.add_field(
+            name="Claimed amount", value=str(submitted_amount), inline=True
+        )
+        admin_embed.add_field(name="Last four digits", value=last4_value, inline=True)
+        admin_embed.add_field(
+            name="Transaction reference",
+            value=transaction_reference[:1000] or "Not provided",
+            inline=False,
         )
         admin_embed.add_field(
-            name="User", value=interaction.user.mention, inline=True
+            name="Review commands",
+            value=(
+                f"/order approve {order.order_id}\n"
+                f"/order reject {order.order_id} reason: ..."
+            ),
+            inline=False,
         )
-        admin_embed.add_field(name="Card Owner", value=self.owner.value, inline=True)
-        admin_embed.add_field(name="Plan", value=self.plan_label, inline=True)
-        admin_embed.add_field(name="Price", value=self.price_label, inline=True)
-        admin_embed.add_field(name="Claimed Amount", value=f"{amount_val}T", inline=True)
-        admin_embed.add_field(name="Last4", value=last4_val, inline=True)
-        admin_embed.add_field(name="Tx/Desc", value=tx_val, inline=False)
 
-        try:
-            await admin_channel.send(content=mention_text, embed=admin_embed)
-        except discord.HTTPException:
-            logger.exception(
-                "Could not notify the admin channel for guild %s",
-                interaction.guild_id,
-            )
+        notification_failed = admin_channel is None
+        if admin_channel is not None:
+            try:
+                await admin_channel.send(
+                    content=admin_role.mention if admin_role else "",
+                    embed=admin_embed,
+                )
+            except discord.HTTPException:
+                notification_failed = True
+                logger.exception(
+                    "Order %s was saved but admin notification failed", order.order_id
+                )
+
+        if notification_failed:
             await interaction.followup.send(
-                "⚠️ Etelaate pardakht be modir ersal nashod; in darkhast sabt nashod. "
-                "Lotfan dobare talash konid ya ba modir tamas begirid.",
+                f"Order {order.order_id} was saved and is awaiting review, but the "
+                "admin notification could not be delivered. Please contact staff "
+                "and provide this order ID.",
                 ephemeral=True,
             )
             return
 
         await interaction.followup.send(
-            "✅ Etelaate pardakht baraye barresi-e modir ersal shod. "
-            "In payam taeed-e pardakht nist.",
+            f"Order {order.order_id} was saved and sent for manual review. "
+            "This is not payment confirmation, and no product has been delivered yet.",
             ephemeral=True,
         )
 
 
 class ShopCog(commands.Cog):
-    """Cog for handling shop commands and interactions."""
+    """Shopfront, order queue, and manual review commands."""
 
     def __init__(self, bot: commands.Bot):
         self.bot = bot
 
-    @commands.hybrid_command(name="shop", description="🛍️ Show shop embed and plans")
+    async def _require_admin(self, ctx: commands.Context) -> bool:
+        if ctx.guild is not None and is_shop_admin(ctx.author):
+            return True
+        await send_context(
+            ctx,
+            "You need administrator permissions or the configured shop-admin role.",
+            ephemeral=True,
+        )
+        return False
+
+    @commands.hybrid_command(name="shop", description="Show the shop and available plans")
     @commands.guild_only()
     async def shop(self, ctx: commands.Context):
         embed = discord.Embed(
-            title=SHOP_TITLE,
-            description=SHOP_DESCRIPTION,
-            color=discord.Color.blue(),
+            title=SHOP_TITLE, description=SHOP_DESCRIPTION, color=discord.Color.blue()
         )
         embed.set_footer(text=SHOP_FOOTER)
-
         view = View(timeout=None)
 
-        # Buttons from .env
         if TELEGRAM_SHOP_URL:
             view.add_item(
-                Button(
-                    label=BTN_SHOP_LABEL,
-                    style=discord.ButtonStyle.link,
-                    url=TELEGRAM_SHOP_URL,
-                )
+                Button(label=BTN_SHOP_LABEL, style=discord.ButtonStyle.link, url=TELEGRAM_SHOP_URL)
             )
         if TELEGRAM_SUPPORT_URL:
             view.add_item(
-                Button(
-                    label=BTN_SUPPORT_LABEL,
-                    style=discord.ButtonStyle.link,
-                    url=TELEGRAM_SUPPORT_URL,
-                )
+                Button(label=BTN_SUPPORT_LABEL, style=discord.ButtonStyle.link, url=TELEGRAM_SUPPORT_URL)
             )
 
-        # Select from validated config.json
-        select = Select(
-            placeholder="📦 Yek plan entekhab konid...", options=PLAN_OPTIONS
-        )
+        select = Select(placeholder="Choose a plan...", options=PLAN_OPTIONS)
 
-        async def select_cb(interaction: discord.Interaction):
+        async def select_callback(interaction: discord.Interaction):
             await interaction.response.defer(ephemeral=True)
             selected_value = interaction.data["values"][0]
             selected_label = next(
-                opt.label for opt in select.options if opt.value == selected_value
+                option.label for option in select.options if option.value == selected_value
             )
             plan_label, price_label = parse_plan_label(selected_label)
-
             guild = interaction.guild
             author = interaction.user
-            category = discord.utils.get(guild.categories, name=CATEGORY_NAME)
 
+            if guild is None:
+                await interaction.followup.send(
+                    "Please use the shop inside a server.", ephemeral=True
+                )
+                return
+
+            category = discord.utils.get(guild.categories, name=CATEGORY_NAME)
             if category is None:
-                overwrites = {
-                    guild.default_role: discord.PermissionOverwrite(view_channel=False),
-                    guild.me: discord.PermissionOverwrite(view_channel=True),
-                }
                 category = await guild.create_category(
-                    CATEGORY_NAME, overwrites=overwrites
+                    CATEGORY_NAME,
+                    overwrites={
+                        guild.default_role: discord.PermissionOverwrite(view_channel=False),
+                        guild.me: discord.PermissionOverwrite(view_channel=True),
+                    },
                 )
 
             overwrites = {
@@ -279,66 +334,185 @@ class ShopCog(commands.Cog):
                     view_channel=True, send_messages=True, read_messages=True
                 )
 
-            ticket_name = generate_ticket_name(author)
             ticket_channel = await category.create_text_channel(
-                name=ticket_name,
+                name=generate_ticket_name(author),
                 overwrites=overwrites,
-                reason=f"Ticket for {author.name} ({author.id})",
+                reason=f"Shop order ticket for {author.name} ({author.id})",
             )
-
             ticket_embed = discord.Embed(
-                title="🛒 GuildCart | Order Ticket",
-                description=f"✅ Shoma plan **{selected_label}** ro entekhab kardi.\n💳 **{CARD_NUMBER}**\n📸 Tasvir pardakht ro ersal konid.",
-                timestamp=datetime.utcnow(),
+                title="GuildCart | Order Ticket",
+                description=(
+                    f"You selected **{selected_label}**.\n"
+                    f"Payment instructions: **{CARD_NUMBER}**\n"
+                    "Submit the payment details for manual staff review."
+                ),
+                timestamp=datetime.now(timezone.utc),
             )
 
             ticket_view = View(timeout=None)
-
             pay_button = Button(label=BTN_PAY_LABEL, style=discord.ButtonStyle.primary)
 
-            async def pay_cb(btn_interaction: discord.Interaction):
-                if btn_interaction.user.id != author.id:
-                    await btn_interaction.response.send_message(
-                        "⚠️ Faghat sakht ticket mitavanad az in dokme estefade konad.",
+            async def pay_callback(button_interaction: discord.Interaction):
+                if button_interaction.user.id != author.id:
+                    await button_interaction.response.send_message(
+                        "Only the customer who opened this ticket can submit payment details.",
                         ephemeral=True,
                     )
                     return
-                await btn_interaction.response.send_modal(
+                await button_interaction.response.send_modal(
                     PaymentModal(plan_label, price_label, ticket_channel.id)
                 )
 
-            pay_button.callback = pay_cb
+            pay_button.callback = pay_callback
             ticket_view.add_item(pay_button)
+            close_button = Button(label=BTN_CLOSE_LABEL, style=discord.ButtonStyle.danger)
 
-            close_button = Button(
-                label=BTN_CLOSE_LABEL, style=discord.ButtonStyle.danger
-            )
-
-            async def close_cb(close_interaction: discord.Interaction):
-                if close_interaction.user.id != author.id and not any(
-                    role.name == ADMIN_ROLE_NAME
-                    for role in close_interaction.user.roles
+            async def close_callback(close_interaction: discord.Interaction):
+                if (
+                    close_interaction.user.id != author.id
+                    and not is_shop_admin(close_interaction.user)
                 ):
                     await close_interaction.response.send_message(
-                        "⚠️ Faghat sakht ya admin mitavanad ticket ra bebandad.",
+                        "Only the ticket owner or shop staff can close this ticket.",
                         ephemeral=True,
                     )
                     return
                 await close_interaction.response.defer()
-                await ticket_channel.delete(reason="Ticket closed by user or admin")
+                await ticket_channel.delete(
+                    reason="Ticket closed by customer or shop staff"
+                )
 
-            close_button.callback = close_cb
+            close_button.callback = close_callback
             ticket_view.add_item(close_button)
-
             await ticket_channel.send(
-                content=f"👋 Salam {author.mention}!",
-                embed=ticket_embed,
-                view=ticket_view,
+                content=f"Hello {author.mention}!", embed=ticket_embed, view=ticket_view
+            )
+            await interaction.followup.send(
+                f"Your ticket has been created: {ticket_channel.mention}",
+                ephemeral=True,
             )
 
-        select.callback = select_cb
+        select.callback = select_callback
         view.add_item(select)
         await ctx.send(embed=embed, view=view)
+
+    @commands.hybrid_command(name="orders", description="List orders awaiting review")
+    @commands.guild_only()
+    async def orders(self, ctx: commands.Context):
+        if not await self._require_admin(ctx):
+            return
+        try:
+            orders = await asyncio.to_thread(
+                get_order_store().list_pending_orders,
+                guild_id=ctx.guild.id,
+                limit=10,
+            )
+        except (OSError, sqlite3.Error):
+            logger.exception("Could not list orders for guild %s", ctx.guild.id)
+            await send_context(ctx, "The order database is temporarily unavailable.", ephemeral=True)
+            return
+
+        if not orders:
+            await send_context(ctx, "There are no orders awaiting review.", ephemeral=True)
+            return
+
+        lines = [
+            f"**{order.order_id}** — <@{order.customer_id}> — "
+            f"{order.product_label} — {order.price_label} — {order.created_at}"
+            for order in orders
+        ]
+        await send_context(
+            ctx,
+            "Orders awaiting manual review (up to 10):\n" + "\n".join(lines),
+            ephemeral=True,
+        )
+
+    @commands.hybrid_group(name="order", invoke_without_command=True)
+    @commands.guild_only()
+    async def order(self, ctx: commands.Context):
+        """Manage an order after checking the submitted payment independently."""
+        await send_context(
+            ctx,
+            "Use /orders, /order approve <order_id>, or "
+            "/order reject <order_id> <reason>.",
+            ephemeral=True,
+        )
+
+    @order.command(name="approve", description="Approve after manually verifying payment")
+    async def order_approve(self, ctx: commands.Context, order_id: str):
+        if not await self._require_admin(ctx):
+            return
+        try:
+            order = await asyncio.to_thread(
+                get_order_store().review_order,
+                guild_id=ctx.guild.id,
+                order_id=order_id,
+                reviewer_id=ctx.author.id,
+                decision=PAID,
+                note="Manually approved by shop staff",
+            )
+        except OrderNotFoundError:
+            await send_context(ctx, "That order was not found in this server.", ephemeral=True)
+            return
+        except OrderStateError as exc:
+            await send_context(ctx, str(exc), ephemeral=True)
+            return
+        except (OSError, sqlite3.Error):
+            logger.exception("Could not approve order %s", order_id)
+            await send_context(ctx, "The order database is temporarily unavailable.", ephemeral=True)
+            return
+
+        await notify_customer(
+            ctx.guild,
+            order,
+            f"Your GuildCart order {order.order_id} was approved after manual payment review. "
+            "This prototype has not automatically provisioned a product or VPN subscription.",
+        )
+        await send_context(
+            ctx,
+            f"Order {order.order_id} marked as paid after manual review. "
+            "No product or VPN subscription was automatically delivered.",
+            ephemeral=True,
+        )
+
+    @order.command(name="reject", description="Reject after manual review")
+    async def order_reject(self, ctx: commands.Context, order_id: str, *, reason: str):
+        if not await self._require_admin(ctx):
+            return
+        if not reason.strip():
+            await send_context(ctx, "A rejection reason is required.", ephemeral=True)
+            return
+        try:
+            order = await asyncio.to_thread(
+                get_order_store().review_order,
+                guild_id=ctx.guild.id,
+                order_id=order_id,
+                reviewer_id=ctx.author.id,
+                decision=REJECTED,
+                note=reason,
+            )
+        except OrderNotFoundError:
+            await send_context(ctx, "That order was not found in this server.", ephemeral=True)
+            return
+        except OrderStateError as exc:
+            await send_context(ctx, str(exc), ephemeral=True)
+            return
+        except (OSError, sqlite3.Error):
+            logger.exception("Could not reject order %s", order_id)
+            await send_context(ctx, "The order database is temporarily unavailable.", ephemeral=True)
+            return
+
+        await notify_customer(
+            ctx.guild,
+            order,
+            f"Your GuildCart order {order.order_id} was rejected after manual review. "
+            f"Reason: {reason.strip()[:500]}",
+        )
+        await send_context(
+            ctx,
+            f"Order {order.order_id} rejected. The decision and reason were saved.",
+            ephemeral=True,
+        )
 
 
 async def setup(bot: commands.Bot):
