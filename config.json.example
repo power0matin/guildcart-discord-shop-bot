@@ -1,7 +1,16 @@
 {
   "plans": [
-    { "label": "Plan A – 50T", "value": "plan_a" },
-    { "label": "Plan B – 100T", "value": "plan_b" },
-    { "label": "Plan C – 200T", "value": "plan_c" }
+    {
+      "label": "🛍️ Starter – 50T",
+      "value": "starter"
+    },
+    {
+      "label": "⭐ Plus – 100T",
+      "value": "plus"
+    },
+    {
+      "label": "💎 Pro – 200T",
+      "value": "pro"
+    }
   ]
 }
