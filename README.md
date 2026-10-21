@@ -1,3 +1,13 @@
+<!-- repo-badges:start -->
+<p align="center">
+  <a href="https://hits.sh/github.com/power0matin/guildcart-discord-shop-bot/"><img src="https://hits.sh/github.com/power0matin/guildcart-discord-shop-bot.svg?style=flat-square&amp;label=Views&amp;labelColor=18181B&amp;color=0EA5E9&amp;logo=github" alt="Repository Views"/></a>
+  <a href="https://github.com/power0matin/guildcart-discord-shop-bot/stargazers"><img src="https://img.shields.io/github/stars/power0matin/guildcart-discord-shop-bot?style=flat-square&amp;label=Stars&amp;labelColor=18181B&amp;color=F59E0B&amp;logo=github&amp;logoColor=white" alt="GitHub Stars"/></a>
+  <a href="https://github.com/power0matin/guildcart-discord-shop-bot/forks"><img src="https://img.shields.io/github/forks/power0matin/guildcart-discord-shop-bot?style=flat-square&amp;label=Forks&amp;labelColor=18181B&amp;color=6366F1&amp;logo=github&amp;logoColor=white" alt="GitHub Forks"/></a>
+  <a href="https://github.com/power0matin/guildcart-discord-shop-bot/issues"><img src="https://img.shields.io/github/issues/power0matin/guildcart-discord-shop-bot?style=flat-square&amp;label=Issues&amp;labelColor=18181B&amp;color=22C55E&amp;logo=github&amp;logoColor=white" alt="GitHub Issues"/></a>
+  <a href="LICENSE"><img src="https://img.shields.io/github/license/power0matin/guildcart-discord-shop-bot?style=flat-square&amp;label=License&amp;labelColor=18181B&amp;color=EF4444&amp;logo=github&amp;logoColor=white" alt="GitHub License"/></a>
+</p>
+<!-- repo-badges:end -->
+
 # GuildCart — Open-Source Discord Shop Bot
 
 GuildCart is an open-source Discord shop bot project aimed at configurable sales of digital products and subscriptions. The first real-world use case is VPN subscription sales, but the core is intended to remain independent of any single brand, VPN panel, payment method, or Discord server.
@@ -166,3 +176,33 @@ Contributions are welcome once the repository is prepared for public collaborati
 ## License
 
 MIT. See [LICENSE](LICENSE).
+
+## Contact
+
+**Matin Shahabadi**
+
+- Website: [matinshahabadi.ir](https://matinshahabadi.ir)
+- Email: [me@matinshahabadi.ir](mailto:me@matinshahabadi.ir)
+- GitHub: [power0matin](https://github.com/power0matin)
+- LinkedIn: [matin-shahabadi](https://www.linkedin.com/in/matin-shahabadi)
+
+<p align="center">
+  <b>If this helped you, consider giving it a star!</b><br>
+  <sub>Your support keeps the project alive and helps others find it.</sub>
+</p>
+
+<!-- Copy-paste in your Readme.md file -->
+<p align="center">
+  <a href="https://next.ossinsight.io/widgets/official/analyze-repo-stars-history?repo_id=1046234380" target="_blank" style="display: block" align="center">
+    <picture>
+      <source media="(prefers-color-scheme: dark)" srcset="https://next.ossinsight.io/widgets/official/analyze-repo-stars-history/thumbnail.png?repo_id=1046234380&amp;image_size=auto&amp;color_scheme=dark" width="721" height="auto">
+      <img alt="Star History of power0matin/guildcart-discord-shop-bot" src="https://next.ossinsight.io/widgets/official/analyze-repo-stars-history/thumbnail.png?repo_id=1046234380&amp;image_size=auto&amp;color_scheme=light" width="721" height="auto">
+    </picture>
+  </a>
+</p>
+
+<!-- Made with [OSS Insight](https://ossinsight.io/) -->
+
+<p align="center">
+  Created by <a href="https://github.com/power0matin">power0matin</a>
+</p>
