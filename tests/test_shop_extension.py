@@ -7,7 +7,7 @@ import discord
 from discord.ext import commands
 
 from guildcart.app import COG_MODULES, create_bot
-from guildcart.cogs.shop import PLAN_OPTIONS, ShopCog, is_shop_admin
+from guildcart.cogs.shop import ShopCog, is_shop_admin
 from guildcart.settings import Settings
 
 
@@ -35,8 +35,15 @@ class ShopExtensionTests(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(COG_MODULES, ("guildcart.cogs.core", "guildcart.cogs.shop"))
 
     async def test_sample_shop_has_valid_plan_options(self):
-        self.assertEqual(len(PLAN_OPTIONS), 3)
-        self.assertTrue(all(option.label and option.value for option in PLAN_OPTIONS))
+        bot = create_bot(Settings.from_environment())
+        try:
+            cog = ShopCog(bot)
+            self.assertEqual(len(cog.plan_options), 3)
+            self.assertTrue(
+                all(option.label and option.value for option in cog.plan_options)
+            )
+        finally:
+            await bot.close()
 
     async def test_shop_admin_check_requires_admin_or_configured_role(self):
         admin = SimpleNamespace(

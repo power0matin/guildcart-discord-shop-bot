@@ -1,4 +1,4 @@
-"""Discord shop Cog: catalogue UI, tickets, and manual order review."""
+"""Discord shop Cog: product selection, tickets, and manual order review."""
 
 import asyncio
 import logging
@@ -13,68 +13,57 @@ from discord import TextStyle
 from discord.ext import commands
 from discord.ui import Modal, TextInput, Select, Button, View
 
-from guildcart.domain.plans import parse_amount, parse_plan_label, validate_plans
+from guildcart.domain.plans import parse_amount, parse_plan_label
 from guildcart.settings import Settings, load_plan_entries
 from guildcart.storage.order_store import (
     PAID, REJECTED, OrderNotFoundError, OrderStateError, OrderStore,
 )
 
-SETTINGS = Settings.from_environment()
-CATEGORY_NAME = SETTINGS.category_name
-ADMIN_CHANNEL_NAME = SETTINGS.admin_channel_name
-ADMIN_ROLE_NAME = SETTINGS.admin_role_name
-PAYMENT_TIMEOUT_MINUTES = SETTINGS.payment_timeout_minutes
-PAYMENTS_DB = SETTINGS.payments_db
-CARD_NUMBER = SETTINGS.card_number
-CRYPTO_ADDRESS_USDT = SETTINGS.crypto_address_usdt
-TICKET_NAME_TEMPLATE = SETTINGS.ticket_name_template
-SHOP_TITLE = SETTINGS.shop_title
-SHOP_DESCRIPTION = SETTINGS.shop_description
-SHOP_FOOTER = SETTINGS.shop_footer
-TELEGRAM_SHOP_URL = SETTINGS.telegram_shop_url
-TELEGRAM_SUPPORT_URL = SETTINGS.telegram_support_url
-BTN_SHOP_LABEL = SETTINGS.btn_shop_label
-BTN_SUPPORT_LABEL = SETTINGS.btn_support_label
-BTN_PAY_LABEL = SETTINGS.btn_pay_label
-BTN_CLOSE_LABEL = SETTINGS.btn_close_label
-
-PLAN_OPTIONS = [
-    discord.SelectOption(label=item["label"], value=item["value"])
-    for item in load_plan_entries(SETTINGS.config_path)
-]
-
 
 @lru_cache(maxsize=4)
-def get_order_store(db_path: str | Path = PAYMENTS_DB) -> OrderStore:
+def get_order_store(db_path: str | Path = "data/payments.db") -> OrderStore:
     """Return a cached SQLite repository for a database path."""
     return OrderStore(db_path)
 
 
 def _store_call(db_path: str | Path, method_name: str, **kwargs):
-    """Call a repository method from asyncio.to_thread."""
+    """Call a repository method; use this helper through asyncio.to_thread."""
     return getattr(get_order_store(str(db_path)), method_name)(**kwargs)
 
 
 logger = logging.getLogger("shop_ticket_payment")
 logger.setLevel(logging.INFO)
-if not any(getattr(handler, "_guildcart_shop_handler", False) for handler in logger.handlers):
+if not any(
+    getattr(handler, "_guildcart_shop_handler", False)
+    for handler in logger.handlers
+):
     handler = logging.StreamHandler()
-    handler.setFormatter(logging.Formatter("%(asctime)s - %(levelname)s - %(name)s - %(message)s"))
+    handler.setFormatter(
+        logging.Formatter(
+            "%(asctime)s - %(levelname)s - %(name)s - %(message)s"
+        )
+    )
     handler._guildcart_shop_handler = True
     logger.addHandler(handler)
 
 
-def generate_ticket_name(author, template: str = TICKET_NAME_TEMPLATE):
+def generate_ticket_name(
+    author, template: str = "ticket-{author}-{rand6}"
+) -> str:
     """Generate a ticket name from the configured template."""
-    return template.format(author=author.name, rand6=random.randint(100000, 999999))
+    return template.format(
+        author=author.name, rand6=random.randint(100000, 999999)
+    )
 
 
-def is_shop_admin(member, admin_role_name: str = ADMIN_ROLE_NAME) -> bool:
-    """Check permissions when every privileged order action is invoked."""
+def is_shop_admin(member, admin_role_name: str = "Admin") -> bool:
+    """Check permissions when each privileged action is invoked."""
     permissions = getattr(member, "guild_permissions", None)
     if permissions and permissions.administrator:
         return True
-    return any(role.name == admin_role_name for role in getattr(member, "roles", ()))
+    return any(
+        role.name == admin_role_name for role in getattr(member, "roles", ())
+    )
 
 
 async def send_context(ctx: commands.Context, *args, **kwargs):
@@ -106,7 +95,7 @@ class PaymentModal(Modal):
         self, plan_label: str, price_label: str, ticket_channel_id: int,
         settings: Settings | None = None,
     ):
-        self.settings = settings or SETTINGS
+        self.settings = settings or Settings.from_environment()
         super().__init__(title=self.settings.btn_pay_label)
         self.plan_label = plan_label
         self.price_label = price_label
@@ -256,7 +245,7 @@ class ShopCog(commands.Cog):
 
     def __init__(self, bot: commands.Bot):
         self.bot = bot
-        self.settings = getattr(bot, "settings", None) or SETTINGS
+        self.settings = getattr(bot, "settings", None) or Settings.from_environment()
         self.plan_options = [
             discord.SelectOption(label=item["label"], value=item["value"])
             for item in load_plan_entries(self.settings.config_path)
@@ -519,6 +508,10 @@ async def setup(bot: commands.Bot):
 
 
 __all__ = [
-    "PaymentModal", "PLAN_OPTIONS", "ShopCog", "generate_ticket_name",
-    "get_order_store", "is_shop_admin", "setup",
+    "PaymentModal",
+    "ShopCog",
+    "generate_ticket_name",
+    "get_order_store",
+    "is_shop_admin",
+    "setup",
 ]

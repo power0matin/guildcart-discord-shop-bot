@@ -6,10 +6,8 @@ import logging
 import os
 from pathlib import Path
 from typing import Any
-from dotenv import load_dotenv
 from guildcart.domain.plans import validate_plans
 
-load_dotenv()
 
 class ConfigurationError(ValueError):
     """Raised when local GuildCart configuration cannot be used safely."""
