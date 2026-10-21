@@ -10,6 +10,8 @@ from discord.ext import commands
 from discord.ui import Modal, TextInput, Select, Button, View
 from dotenv import load_dotenv
 
+from features.plan_utils import parse_amount, parse_plan_label, validate_plans
+
 # Load environment variables
 load_dotenv()
 
@@ -43,16 +45,20 @@ BTN_SUPPORT_LABEL = os.getenv("BTN_SUPPORT_LABEL", "🧑‍💻 Support")
 BTN_PAY_LABEL = os.getenv("BTN_PAY_LABEL", "💳 Sabt Pardakht")
 BTN_CLOSE_LABEL = os.getenv("BTN_CLOSE_LABEL", "🔒 Bastan Ticket")
 
-# Load plan options from config.json
-PLAN_OPTIONS = []
+# Load and validate plan options so invalid settings fail during startup instead
+# of producing a broken selector only when a customer tries to place an order.
 try:
     with open("config.json", "r", encoding="utf-8") as f:
-        for item in json.load(f)["plans"]:
-            PLAN_OPTIONS.append(
-                discord.SelectOption(label=item["label"], value=item["value"])
-            )
-except Exception as e:
-    print(f"⚠️ Failed to load config.json: {e}")
+        shop_config = json.load(f)
+    if not isinstance(shop_config, dict):
+        raise ValueError("The root value must be a JSON object.")
+    validated_plans = validate_plans(shop_config.get("plans"))
+    PLAN_OPTIONS = [
+        discord.SelectOption(label=item["label"], value=item["value"])
+        for item in validated_plans
+    ]
+except (OSError, json.JSONDecodeError, ValueError) as exc:
+    raise RuntimeError(f"Invalid shop configuration in config.json: {exc}") from exc
 
 # Logging setup
 logger = logging.getLogger("shop_ticket_payment")
@@ -94,7 +100,7 @@ class PaymentModal(Modal):
         )
         self.amount = TextInput(
             label="Mablagh (amount)",
-            placeholder=f"mesal: {price_label[:-1]}",  # Remove 'T' for clarity
+            placeholder=f"mesal: {price_label[:-1]}",
             min_length=1,
             required=True,
         )
@@ -109,7 +115,6 @@ class PaymentModal(Modal):
 
     async def on_submit(self, interaction: discord.Interaction):
         last4_val = self.last4.value.strip()
-        amount_raw = self.amount.value.strip().rstrip("Tt")
         tx_val = self.tx.value.strip() or "N/A"
 
         # Validate last4
@@ -119,20 +124,17 @@ class PaymentModal(Modal):
             )
             return
 
-        # Validate amount
+        # Use Decimal to avoid binary float comparison errors.
         try:
-            amount_val = float(amount_raw)
-            if amount_val <= 0:
-                raise ValueError("Amount must be positive")
+            amount_val = parse_amount(self.amount.value)
+            expected_price = parse_amount(self.price_label)
         except ValueError:
             await interaction.response.send_message(
-                "⚠️ Mablagh ghalat ast. Lotfan adad vared konid (mesal: 40).",
+                "⚠️ Mablagh ghalat ast. Lotfan adad mojaz vared konid (mesal: 40).",
                 ephemeral=True,
             )
             return
 
-        # Check if amount matches expected
-        expected_price = float(self.price_label.rstrip("Tt"))
         if amount_val != expected_price:
             await interaction.response.send_message(
                 f"⚠️ Mablagh vared shode ({amount_val}T) ba gheymat plan ({self.price_label}) motabeghat nadarad.",
@@ -142,39 +144,62 @@ class PaymentModal(Modal):
 
         await interaction.response.defer(ephemeral=True)
 
-        # Confirm to user
+        # User-submitted details are only claims; they do not prove payment.
+        admin_channel = None
+        if interaction.guild is not None:
+            admin_channel = discord.utils.get(
+                interaction.guild.text_channels, name=ADMIN_CHANNEL_NAME
+            )
+
+        if admin_channel is None:
+            logger.error(
+                "Cannot submit payment details: admin channel %r is missing in guild %s",
+                ADMIN_CHANNEL_NAME,
+                interaction.guild_id,
+            )
+            await interaction.followup.send(
+                "⚠️ Payam-e modir resid nashod. Etelaate pardakht sabt nashod; "
+                "lotfan ba modir server tamas begirid.",
+                ephemeral=True,
+            )
+            return
+
+        admin_role = discord.utils.get(interaction.guild.roles, name=ADMIN_ROLE_NAME)
+        mention_text = admin_role.mention if admin_role else ""
+        admin_embed = discord.Embed(
+            title="💳 Payment details submitted — review required",
+            color=discord.Color.orange(),
+            timestamp=datetime.utcnow(),
+        )
+        admin_embed.add_field(
+            name="User", value=interaction.user.mention, inline=True
+        )
+        admin_embed.add_field(name="Card Owner", value=self.owner.value, inline=True)
+        admin_embed.add_field(name="Plan", value=self.plan_label, inline=True)
+        admin_embed.add_field(name="Price", value=self.price_label, inline=True)
+        admin_embed.add_field(name="Claimed Amount", value=f"{amount_val}T", inline=True)
+        admin_embed.add_field(name="Last4", value=last4_val, inline=True)
+        admin_embed.add_field(name="Tx/Desc", value=tx_val, inline=False)
+
+        try:
+            await admin_channel.send(content=mention_text, embed=admin_embed)
+        except discord.HTTPException:
+            logger.exception(
+                "Could not notify the admin channel for guild %s",
+                interaction.guild_id,
+            )
+            await interaction.followup.send(
+                "⚠️ Etelaate pardakht be modir ersal nashod; in darkhast sabt nashod. "
+                "Lotfan dobare talash konid ya ba modir tamas begirid.",
+                ephemeral=True,
+            )
+            return
+
         await interaction.followup.send(
-            f"✅ Pardakht shoma sabt shod!\n"
-            f"User: {self.owner.value}\n"
-            f"Plan: **{self.plan_label}** | Price: **{self.price_label}**\n"
-            f"Amount: **{amount_val}T** | Last4: **{last4_val}**\nTx/Desc: {tx_val}",
+            "✅ Etelaate pardakht baraye barresi-e modir ersal shod. "
+            "In payam taeed-e pardakht nist.",
             ephemeral=True,
         )
-
-        # Notify admin
-        admin_channel = discord.utils.get(
-            interaction.guild.text_channels, name=ADMIN_CHANNEL_NAME
-        )
-        admin_role = discord.utils.get(interaction.guild.roles, name=ADMIN_ROLE_NAME)
-
-        if admin_channel:
-            mention_text = admin_role.mention if admin_role else ""
-            admin_embed = discord.Embed(
-                title="💳 Pardakht Jadid",
-                color=discord.Color.green(),
-                timestamp=datetime.utcnow(),
-            )
-            admin_embed.add_field(
-                name="User", value=interaction.user.mention, inline=True
-            )
-            admin_embed.add_field(name="Card Owner", value=self.owner.value, inline=True)
-            admin_embed.add_field(name="Plan", value=self.plan_label, inline=True)
-            admin_embed.add_field(name="Price", value=self.price_label, inline=True)
-            admin_embed.add_field(name="Amount", value=f"{amount_val}T", inline=True)
-            admin_embed.add_field(name="Last4", value=last4_val, inline=True)
-            admin_embed.add_field(name="Tx/Desc", value=tx_val, inline=False)
-
-            await admin_channel.send(content=mention_text, embed=admin_embed)
 
 
 class ShopCog(commands.Cog):
@@ -213,7 +238,7 @@ class ShopCog(commands.Cog):
                 )
             )
 
-        # Select from config.json
+        # Select from validated config.json
         select = Select(
             placeholder="📦 Yek plan entekhab konid...", options=PLAN_OPTIONS
         )
@@ -224,15 +249,7 @@ class ShopCog(commands.Cog):
             selected_label = next(
                 opt.label for opt in select.options if opt.value == selected_value
             )
-
-            plan_label, price_label = (
-                (
-                    selected_label.split("–")[0].strip(),
-                    selected_label.split("–")[1].strip(),
-                )
-                if "–" in selected_label
-                else (selected_label, "N/A")
-            )
+            plan_label, price_label = parse_plan_label(selected_label)
 
             guild = interaction.guild
             author = interaction.user

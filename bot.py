@@ -31,7 +31,11 @@ class MyBot(commands.Bot):
                     await self.load_extension(cog_name)
                     logger.info(f"Loaded cog: {cog_name}")
                 except Exception as e:
-                    logger.error(f"Failed to load cog {cog_name}: {e}")
+                    logger.exception(f"Failed to load required cog {cog_name}")
+                    raise RuntimeError(
+                        f"Could not load required extension {cog_name}; "
+                        "see the preceding error for details."
+                    ) from e
 
         # Sync slash commands globally (for production, sync per guild if needed)
         # Note: Syncing can be rate-limited; do this sparingly in production
@@ -46,7 +50,7 @@ intents.message_content = True  # For reading message content in commands
 
 bot = MyBot(command_prefix=PREFIX, intents=intents)
 
-# Remove default help command to replace with custom one
+# Remove default help command to replace with a custom one
 bot.remove_command("help")
 
 
