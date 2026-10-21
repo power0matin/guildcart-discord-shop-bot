@@ -1,9 +1,44 @@
-# Ignore environment file
+# Environment and local configuration
 .env
+.env.*
+!.env.example
+config.json
 
-# Ignore logs
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+.python-version
+
+# Virtual environments
+.venv/
+venv/
+env/
+
+# Logs and runtime data
 logs/
 *.log
+data/*.db
+data/*.sqlite
+data/*.sqlite3
+*.db-wal
+*.db-shm
 
-# Ignore config files
-config.json
+# Tests, coverage, and type-checker caches
+.pytest_cache/
+.coverage
+.coverage.*
+htmlcov/
+.mypy_cache/
+.pyright/
+.ruff_cache/
+
+# Build/package output
+build/
+dist/
+*.egg-info/
+
+# IDE and OS files
+.idea/
+.DS_Store
+Thumbs.db
