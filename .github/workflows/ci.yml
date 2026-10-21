@@ -11,7 +11,7 @@ permissions:
 
 jobs:
   smoke-check:
-    name: Install, unit tests, and syntax check (Python 3.11)
+    name: Install, unit tests, extension registration, and syntax check (Python 3.11)
     runs-on: ubuntu-latest
     steps:
       - name: Check out repository
@@ -27,10 +27,13 @@ jobs:
       - name: Install dependencies
         run: python -m pip install -r requirements.txt
 
+      - name: Prepare safe sample configuration
+        run: cp config.json.example config.json
+
       - name: Verify runtime imports
         run: python -c "import discord; import dotenv; print('discord.py', discord.__version__)"
 
-      - name: Run unit tests
+      - name: Run unit and extension tests
         run: python -m unittest discover -s tests -v
 
       - name: Compile application modules

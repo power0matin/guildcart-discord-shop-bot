@@ -5,6 +5,7 @@ Not every repository change is a release. This file records user-visible changes
 ## Unreleased
 
 ### Added
+- CI smoke tests for shop Cog registration, command groups, sample plans, and admin gating.
 - SQLite-backed order records with per-guild scope and review metadata.
 - Staff commands to list, approve, and reject pending orders.
 - Unit tests for order persistence, guild isolation, and guarded state transitions.
