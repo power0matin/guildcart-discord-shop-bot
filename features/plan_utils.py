@@ -4,7 +4,7 @@ import re
 from decimal import Decimal, InvalidOperation
 
 
-_PLAN_SEPARATOR = re.compile(r"\\s+[–—-]\\s+")
+_PLAN_SEPARATOR = re.compile(r"\s+[–—-]\s+")
 
 
 def parse_amount(raw_value: str) -> Decimal:
